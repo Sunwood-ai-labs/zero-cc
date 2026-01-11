@@ -1,6 +1,10 @@
 <div align="center">
 
-# 🛠️ zero-cc
+<img src="assets/header.svg" alt="ZERO CC Header" width="1200"/>
+
+</div>
+
+<div align="center">
 
 ### Claude Code 用カスタムスキル集
 
@@ -120,6 +124,8 @@ zero-cc/
 │       │   └── SKILL.md
 │       └── repo-maintain/
 │           └── SKILL.md
+├── assets/
+│   └── header.svg
 ├── README.md
 └── LICENSE
 ```
