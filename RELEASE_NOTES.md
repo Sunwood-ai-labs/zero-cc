@@ -1,4 +1,4 @@
-<img src="https://github.com/Sunwood-ai-labs/zero-cc/releases/download/v0.1.0/release-header.svg" alt="v0.1.0 Release" width="1200"/>
+<img src="https://raw.githubusercontent.com/Sunwood-ai-labs/zero-cc/main/assets/release-header.svg" alt="v0.1.0 Release" width="1200"/>
 
 # v0.1.0 - 初回リリース / Initial Release
 
