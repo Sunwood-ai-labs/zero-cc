@@ -51,5 +51,3 @@
 - [ ] マイグレーションは必要？
 
 ---
-
-Co-Authored-By: Claude <noreply@anthropic.com>
