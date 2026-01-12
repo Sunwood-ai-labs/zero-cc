@@ -233,12 +233,121 @@ description: コードレビューを実施。
 $ARGUMENTS
 ```
 
+## references/ の作成ガイド
+
+### いつ作るか
+
+| 状況 | 作成するファイル |
+|------|------------------|
+| セキュリティチェックが必要 | `references/SECURITY.md` |
+| パフォーマンス基準がある | `references/PERFORMANCE.md` |
+| コーディング規約がある | `references/STYLE_GUIDE.md` |
+| 複数のパターン/例がある | `references/PATTERNS.md` |
+| APIやスキーマ仕様がある | `references/API_SPEC.md` |
+| SKILL.mdが100行超える | 分割して参照 |
+
+### 参照ファイルのフォーマット
+
+```markdown
+# タイトル
+
+## 概要
+[1-2文で説明]
+
+## チェックリスト
+- [ ] 項目1
+- [ ] 項目2
+
+## 詳細
+[必要に応じて]
+
+## 例
+[具体例]
+```
+
+### SKILL.mdからの参照方法
+
+```markdown
+セキュリティチェック（See [references/SECURITY.md](references/SECURITY.md)）
+```
+
+---
+
+## scripts/ の作成ガイド
+
+### いつ作るか
+
+| 状況 | 作成するスクリプト |
+|------|-------------------|
+| リンター/フォーマッター実行 | `scripts/lint.sh` |
+| テスト実行 | `scripts/test.sh` |
+| データ変換/分析 | `scripts/analyze.py` |
+| ファイル生成 | `scripts/generate.py` |
+| 外部API呼び出し | `scripts/fetch.py` |
+| バリデーション | `scripts/validate.sh` |
+
+### スクリプトのフォーマット
+
+**Bash:**
+```bash
+#!/bin/bash
+# 説明: 何をするスクリプトか
+# 使用方法: ./scripts/xxx.sh [args]
+
+set -e  # エラー時に停止
+
+# 処理
+```
+
+**Python:**
+```python
+#!/usr/bin/env python3
+"""
+説明: 何をするスクリプトか
+使用方法: python scripts/xxx.py [args]
+"""
+
+import sys
+
+def main():
+    # 処理
+    pass
+
+if __name__ == "__main__":
+    main()
+```
+
+### SKILL.mdからの実行方法
+
+**方法1: !プレフィックス（事前実行）**
+```markdown
+## コンテキスト
+- リント結果: !`./scripts/lint.sh`
+```
+
+**方法2: allowed-tools（実行許可）**
+```yaml
+---
+allowed-tools: Bash(./scripts/*)
+---
+```
+
+**方法3: 手順内で指示**
+```markdown
+## ワークフロー
+1. `./scripts/analyze.py` を実行
+2. 結果を確認
+```
+
+---
+
 ## ベストプラクティス
 
 ✅ descriptionにトリガー条件を明記
 ✅ 単一責任で設計
 ✅ 必要なツールのみ `allowed-tools` で許可
 ✅ 複雑なロジックは `references/` に分離
+✅ 外部ツール連携は `scripts/` に分離
 ✅ バージョン管理にコミット
 ✅ ホットリロード活用（v2.1.2+）
 
@@ -246,3 +355,4 @@ $ARGUMENTS
 ❌ 過剰な説明（Claudeは賢い）
 ❌ 深いネストの参照構造
 ❌ `.claude/commands/` の使用（レガシー）
+❌ スクリプトに機密情報をハードコード

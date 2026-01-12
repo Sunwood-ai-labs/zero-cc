@@ -2,7 +2,202 @@
 
 よく使われるユースケース別のスキルテンプレート。
 
-## 開発ワークフロー系
+---
+
+## 構成パターン別テンプレート
+
+### パターン1: シンプル（SKILL.mdのみ）
+
+```
+skill-name/
+└── SKILL.md
+```
+
+用途: 単純なプロンプト再利用、簡単な変換
+
+---
+
+### パターン2: 中程度（+references）
+
+```
+skill-name/
+├── SKILL.md
+└── references/
+    ├── CHECKLIST.md
+    └── EXAMPLES.md
+```
+
+用途: チェックリスト付きタスク、ガイドライン適用
+
+---
+
+### パターン3: 複雑（+scripts）
+
+```
+skill-name/
+├── SKILL.md
+├── references/
+│   ├── SECURITY.md
+│   └── PERFORMANCE.md
+└── scripts/
+    ├── lint.sh
+    └── analyze.py
+```
+
+用途: 外部ツール連携、自動化タスク
+
+---
+
+## 完全なスキル例
+
+### コードレビュースキル（フル構成）
+
+**ディレクトリ構造:**
+```
+code-review/
+├── SKILL.md
+├── references/
+│   ├── SECURITY.md
+│   ├── PERFORMANCE.md
+│   └── STYLE.md
+└── scripts/
+    └── run-linters.sh
+```
+
+**SKILL.md:**
+```yaml
+---
+name: code-review
+description: |
+  包括的なコードレビューを実施。
+  「レビューして」「PRチェックして」「コード見て」で発動。
+allowed-tools: Read, Grep, Glob, Bash(./scripts/*)
+---
+
+# Code Review
+
+## ワークフロー
+
+1. **リンター実行**
+   ```bash
+   ./scripts/run-linters.sh
+   ```
+
+2. **セキュリティチェック**
+   See [references/SECURITY.md](references/SECURITY.md)
+
+3. **パフォーマンス分析**
+   See [references/PERFORMANCE.md](references/PERFORMANCE.md)
+
+4. **スタイル確認**
+   See [references/STYLE.md](references/STYLE.md)
+
+5. **総合レポート生成**
+
+## 出力形式
+
+- 🔴 **Critical**: 必ず修正
+- 🟡 **Warning**: 修正推奨
+- 🔵 **Suggestion**: 検討事項
+
+## 追加コンテキスト
+
+$ARGUMENTS
+```
+
+**references/SECURITY.md:**
+```markdown
+# セキュリティチェックリスト
+
+## 入力検証
+- [ ] SQLインジェクション対策
+- [ ] XSS対策
+- [ ] パストラバーサル対策
+- [ ] コマンドインジェクション対策
+
+## 認証・認可
+- [ ] 認証バイパスの可能性
+- [ ] 権限チェック漏れ
+- [ ] セッション管理の問題
+
+## 機密情報
+- [ ] ハードコードされた認証情報
+- [ ] ログへの機密情報出力
+- [ ] エラーメッセージでの情報漏洩
+
+## 依存関係
+- [ ] 既知の脆弱性を持つライブラリ
+- [ ] 古いバージョンの使用
+```
+
+**references/PERFORMANCE.md:**
+```markdown
+# パフォーマンスチェックリスト
+
+## データベース
+- [ ] N+1クエリ
+- [ ] インデックス未使用
+- [ ] 不要なJOIN
+- [ ] 大量データの一括取得
+
+## メモリ
+- [ ] メモリリーク
+- [ ] 大きなオブジェクトの保持
+- [ ] 不要なキャッシュ
+
+## ネットワーク
+- [ ] 不要なAPI呼び出し
+- [ ] キャッシュ未活用
+- [ ] 同期的な外部呼び出し
+
+## 計算
+- [ ] 非効率なアルゴリズム
+- [ ] 重複計算
+- [ ] ループ内の重い処理
+```
+
+**references/STYLE.md:**
+```markdown
+# スタイルガイド
+
+## 命名規約
+- 変数: camelCase
+- 定数: UPPER_SNAKE_CASE
+- クラス: PascalCase
+- ファイル: kebab-case
+
+## コード構造
+- 1関数 = 1責任
+- 関数は50行以内
+- ネストは3レベル以内
+- マジックナンバー禁止
+
+## コメント
+- 「なぜ」を書く（「何」ではない）
+- TODOには担当者と期限
+- 複雑なロジックには説明
+```
+
+**scripts/run-linters.sh:**
+```bash
+#!/bin/bash
+# コードレビュー用リンター実行スクリプト
+
+set -e
+
+echo "=== ESLint ==="
+npm run lint 2>&1 || true
+
+echo ""
+echo "=== TypeScript ==="
+npm run type-check 2>&1 || true
+
+echo ""
+echo "=== Prettier ==="
+npm run format:check 2>&1 || true
+```
+
+---
 
 ### コミットメッセージ生成
 
