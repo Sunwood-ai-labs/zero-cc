@@ -1,41 +1,43 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Claude Code + Z.AI (Anthropic-compatible) setup installer
+# zero-cc installer (uv-style: curl | bash)
 #
-# Installs:
-#   ~/.bashrc.d/00-llm-secrets.sh
-#   ~/.bashrc.d/60-claude-modes.sh
-# and ensures ~/.bashrc sources ~/.bashrc.d/*.sh
+# What it does:
+#  - Installs Claude Code if `claude` is missing (official native installer)
+#  - Ensures ~/.local/bin is in PATH (via ~/.bashrc.d/10-path-localbin.sh)
+#  - Writes:
+#      ~/.bashrc.d/00-llm-secrets.sh
+#      ~/.bashrc.d/60-claude-modes.sh
+#    and ensures ~/.bashrc sources ~/.bashrc.d/*.sh
 #
-# Usage:
-#   curl -fsSL <RAW_URL>/install.sh | bash
-#
-# Options:
-#   --force            overwrite existing files (backup is created)
-#   --no-bashrc        do not modify ~/.bashrc (only writes ~/.bashrc.d files)
-#   --perms            create ./\.claude/settings.local.json (project permissions template)
-#   --nonroot-user U   set CC_NONROOT_USER to U (default: current user, or "kali" if root)
-#   --zai-key KEY      set ZAI_API_KEY (if omitted, uses env ZAI_API_KEY or prompts if TTY)
-#
-# Env vars:
-#   ZAI_API_KEY, CC_NONROOT_USER
+# Usage (examples):
+#   curl -fsSL https://raw.githubusercontent.com/Sunwood-ai-labs/zero-cc/main/script/install.sh | bash
+#   ZAI_API_KEY="xxx" CC_NONROOT_USER="aslan" curl -fsSL .../install.sh | bash -s -- --force --perms
 
 FORCE=0
 NO_BASHRC=0
 WRITE_PERMS=0
-ARG_NONROOT_USER=""
-ARG_ZAI_KEY=""
+SKIP_CLAUDE_INSTALL=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --force) FORCE=1 ;;
     --no-bashrc) NO_BASHRC=1 ;;
     --perms) WRITE_PERMS=1 ;;
-    --nonroot-user) shift; ARG_NONROOT_USER="${1:-}";;
-    --zai-key) shift; ARG_ZAI_KEY="${1:-}";;
+    --skip-claude-install) SKIP_CLAUDE_INSTALL=1 ;;
     -h|--help)
-      sed -n '1,120p' "$0"
+      cat <<'HELP'
+Options:
+  --force                overwrite existing files (creates backups)
+  --no-bashrc            do not modify ~/.bashrc
+  --perms                create ./.claude/settings.local.json (permissions template)
+  --skip-claude-install  do not install Claude Code even if missing
+
+Env:
+  ZAI_API_KEY        Z.AI API key (optional; prompts if TTY, else placeholder)
+  CC_NONROOT_USER    user for ccd-* downgrade when running as root (default: current user)
+HELP
       exit 0
       ;;
     *)
@@ -47,7 +49,6 @@ while [ $# -gt 0 ]; do
 done
 
 timestamp() { date +%Y%m%d-%H%M%S; }
-is_root() { [ "${EUID:-$(id -u)}" -eq 0 ]; }
 has_tty() { [ -t 0 ] && [ -t 1 ]; }
 
 backup_if_exists() {
@@ -55,12 +56,6 @@ backup_if_exists() {
   if [ -e "$f" ]; then
     cp -a "$f" "${f}.bak.$(timestamp)"
   fi
-}
-
-ensure_dir() {
-  local d="$1"
-  mkdir -p "$d"
-  chmod 700 "$d"
 }
 
 write_file_strict() {
@@ -100,38 +95,7 @@ fi
 BLOCK
 }
 
-pick_nonroot_user_default() {
-  # If user supplied, use it
-  if [ -n "$ARG_NONROOT_USER" ]; then
-    echo "$ARG_NONROOT_USER"
-    return 0
-  fi
-
-  # If env provided, use it
-  if [ -n "${CC_NONROOT_USER:-}" ]; then
-    echo "$CC_NONROOT_USER"
-    return 0
-  fi
-
-  # If root, prefer SUDO_USER if available, else "kali"
-  if is_root; then
-    if [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != "root" ]; then
-      echo "$SUDO_USER"
-    else
-      echo "kali"
-    fi
-    return 0
-  fi
-
-  # Otherwise current user
-  id -un
-}
-
 pick_zai_key() {
-  if [ -n "$ARG_ZAI_KEY" ]; then
-    echo "$ARG_ZAI_KEY"
-    return 0
-  fi
   if [ -n "${ZAI_API_KEY:-}" ]; then
     echo "$ZAI_API_KEY"
     return 0
@@ -146,24 +110,68 @@ pick_zai_key() {
     return 0
   fi
 
-  # non-interactive: leave placeholder
   echo "YOUR_ZAI_API_KEY"
 }
 
-write_secrets_and_modes_for_home() {
-  # $1=HOME_DIR
-  local home_dir="$1"
-  local bashrc_d="$home_dir/.bashrc.d"
-  local secrets_path="$bashrc_d/00-llm-secrets.sh"
-  local modes_path="$bashrc_d/60-claude-modes.sh"
-  local bashrc_path="$home_dir/.bashrc"
+pick_nonroot_user() {
+  if [ -n "${CC_NONROOT_USER:-}" ]; then
+    echo "$CC_NONROOT_USER"
+    return 0
+  fi
+  # default: current user (works for typical non-root usage)
+  id -un
+}
 
-  ensure_dir "$bashrc_d"
+install_claude_if_missing() {
+  if [ "$SKIP_CLAUDE_INSTALL" -eq 1 ]; then
+    return 0
+  fi
 
-  local nonroot_user zai_key
-  nonroot_user="$(pick_nonroot_user_default)"
+  if command -v claude >/dev/null 2>&1; then
+    return 0
+  fi
+
+  echo "[install] Claude Code not found. Installing via official installer..." >&2
+  # Official native install (macOS/Linux/WSL)
+  # curl -fsSL https://claude.ai/install.sh | bash
+  # Installs symlink to ~/.local/bin/claude (ensure PATH includes ~/.local/bin)
+  curl -fsSL https://claude.ai/install.sh | bash
+
+  if ! command -v claude >/dev/null 2>&1; then
+    echo "[install] Claude Code install finished but 'claude' is still not in PATH." >&2
+    echo "[install] You may need to reload your shell or ensure ~/.local/bin is in PATH." >&2
+  fi
+}
+
+write_path_snippet() {
+  local bashrc_d="$HOME/.bashrc.d"
+  mkdir -p "$bashrc_d"
+  chmod 700 "$bashrc_d"
+
+  local path_file="$bashrc_d/10-path-localbin.sh"
+  local content
+  content=$(
+    cat <<'EOF'
+# Ensure ~/.local/bin is on PATH (Claude Code installer links here)
+case ":$PATH:" in
+  *":$HOME/.local/bin:"*) ;;
+  *) export PATH="$HOME/.local/bin:$PATH" ;;
+esac
+EOF
+  )
+  write_file_strict "$path_file" "$content" 600
+}
+
+write_secrets_and_modes() {
+  local bashrc_d="$HOME/.bashrc.d"
+  mkdir -p "$bashrc_d"
+  chmod 700 "$bashrc_d"
+
+  local zai_key nonroot_user
   zai_key="$(pick_zai_key)"
+  nonroot_user="$(pick_nonroot_user)"
 
+  local secrets_path="$bashrc_d/00-llm-secrets.sh"
   local secrets_content
   secrets_content=$(
     cat <<EOF
@@ -176,18 +184,22 @@ ZAI_API_KEY="${zai_key}"
 # OPENROUTER_API_KEY="YOUR_OPENROUTER_KEY"
 
 # ccd-* を root で実行した場合に降格するユーザー（dangerous mode対策）
-# 存在する非rootユーザー名にする（例: kali / yourname）
 CC_NONROOT_USER="${nonroot_user}"
 EOF
   )
   write_file_strict "$secrets_path" "$secrets_content" 600
 
+  local modes_path="$bashrc_d/60-claude-modes.sh"
   local modes_content
   modes_content=$(
     cat <<'EOF'
 # ===== Claude Code: mode switching =====
 
 # --- Z.AI Anthropic-compatible endpoint ---
+# Z.AI docs:
+#   ANTHROPIC_BASE_URL=https://api.z.ai/api/anthropic
+#   ANTHROPIC_AUTH_TOKEN=your_zai_api_key
+#   API_TIMEOUT_MS=3000000 (optional)
 ZAI_ANTHROPIC_BASE_URL="https://api.z.ai/api/anthropic"
 
 # Model mapping (as requested)
@@ -223,7 +235,7 @@ _ccd_reexec_as_nonroot_if_root() {
     exit 2
   fi
 
-  exec sudo -u "$CC_NONROOT_USER" -H bash -lc 'source ~/.bashrc; "$@"' bash "$@"
+  exec sudo -u "$CC_NONROOT_USER" -H bash -lc 'source ~/.bashrc; '"$1"' "$@"' bash "$@"
 }
 
 # 1) 通常（Anthropic 側ログイン/サブスク運用想定）
@@ -235,13 +247,11 @@ cc_std() (
   unset ANTHROPIC_DEFAULT_HAIKU_MODEL
   unset ANTHROPIC_API_KEY
   unset API_TIMEOUT_MS
-
   command claude "$@"
 )
 
 # 2) GLM (Z.AI Anthropic endpoint)
 cc_glm() (
-  # secrets は subshell 内で読み込み（キーをシェルに常駐させない）
   # shellcheck disable=SC1090
   . "$HOME/.bashrc.d/00-llm-secrets.sh"
 
@@ -252,14 +262,11 @@ cc_glm() (
 
   export ANTHROPIC_BASE_URL="$ZAI_ANTHROPIC_BASE_URL"
   export ANTHROPIC_AUTH_TOKEN="$ZAI_API_KEY"
-
-  # 競合回避（他経路の設定があっても確実にこちらを使う）
   export ANTHROPIC_API_KEY=""
 
-  # 必要に応じてタイムアウトを伸ばす（未設定ならこの値）
+  # optional, but recommended by Z.AI docs
   export API_TIMEOUT_MS="${API_TIMEOUT_MS:-3000000}"
 
-  # Model mapping
   export ANTHROPIC_DEFAULT_HAIKU_MODEL="$ZAI_DEFAULT_HAIKU_MODEL"
   export ANTHROPIC_DEFAULT_SONNET_MODEL="$ZAI_DEFAULT_SONNET_MODEL"
   export ANTHROPIC_DEFAULT_OPUS_MODEL="$ZAI_DEFAULT_OPUS_MODEL"
@@ -267,7 +274,7 @@ cc_glm() (
   command claude "$@"
 )
 
-# 3) Dangerous（root/sudo では Claude Code 側で拒否されるため、rootなら自動で非rootに降格して実行）
+# 3) Dangerous（root/sudo では Claude Code 側で拒否されるため、rootなら自動で非rootに降格）
 ccd_std() (
   _ccd_reexec_as_nonroot_if_root ccd_std "$@" || true
 
@@ -305,7 +312,6 @@ ccd_glm() (
   command claude --dangerously-skip-permissions "$@"
 )
 
-# 見やすいコマンド名（ハイフンは alias で実現）
 alias cc-st='cc_std'
 alias cc-glm='cc_glm'
 alias ccd-st='ccd_std'
@@ -313,10 +319,6 @@ alias ccd-glm='ccd_glm'
 EOF
   )
   write_file_strict "$modes_path" "$modes_content" 600
-
-  if [ "$NO_BASHRC" -ne 1 ]; then
-    ensure_bashrc_loader "$bashrc_path"
-  fi
 }
 
 write_project_permissions_template() {
@@ -382,25 +384,12 @@ JSON
 }
 
 main() {
-  write_secrets_and_modes_for_home "$HOME"
+  install_claude_if_missing
+  write_path_snippet
+  write_secrets_and_modes
 
-  # If running as root, also install for CC_NONROOT_USER (so ccd-* reexec works)
-  if is_root; then
-    local nonroot_user
-    nonroot_user="$(pick_nonroot_user_default)"
-    if id "$nonroot_user" >/dev/null 2>&1; then
-      local nr_home
-      nr_home="$(eval echo "~$nonroot_user")"
-      if [ -n "$nr_home" ] && [ "$nr_home" != "~$nonroot_user" ]; then
-        # Write files into that user's home as well (requires root permission)
-        local saved_home="$HOME"
-        HOME="$nr_home" write_secrets_and_modes_for_home "$nr_home"
-        HOME="$saved_home"
-        echo "[install] also installed into non-root home: $nr_home (user: $nonroot_user)"
-      fi
-    else
-      echo "[install] note: non-root user not found, ccd-* reexec may fail: $nonroot_user" >&2
-    fi
+  if [ "$NO_BASHRC" -ne 1 ]; then
+    ensure_bashrc_loader "$HOME/.bashrc"
   fi
 
   if [ "$WRITE_PERMS" -eq 1 ]; then
@@ -409,6 +398,7 @@ main() {
 
   echo "[install] done. Run: source ~/.bashrc"
   echo "[install] commands: cc-st / cc-glm / ccd-st / ccd-glm"
+  echo "[install] verify: claude doctor"
 }
 
 main

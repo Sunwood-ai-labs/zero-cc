@@ -1,6 +1,6 @@
-<img src="https://raw.githubusercontent.com/Sunwood-ai-labs/zero-cc/main/assets/release-header.svg" alt="v0.1.0 Release" width="1200"/>
+<img src="https://raw.githubusercontent.com/Sunwood-ai-labs/zero-cc/main/assets/release-header-v0.2.0.svg" alt="v0.2.0 Release"/>
 
-# v0.1.0 - 初回リリース / Initial Release
+# v0.2.0 - ワークフロー強化リリース / Workflow Enhancement Release
 
 **リリース日 / Release Date:** 2026年1月12日 / January 12, 2026
 
@@ -10,56 +10,79 @@
 
 ### 概要
 
-ZERO CC v0.1.0 は、Claude Code 用カスタムスキルコレクションの初回リリースです。このリリースには、Claude Code のワークフローを強化する3つの強力なスキルが含まれています。
+ZERO CC v0.2.0 は、Git Flow ワークフローと開発者体験を大幅に強化するリリースです。新しく `repo-flow` スキルが追加され、各スキルにリファレンステンプレートが提供されるようになりました。
 
 ### 新機能
 
 #### スキル
 
-**claude-code-extension-generator**
-- 自然言語から Claude Code 拡張機能を自動生成
-- スキル、サブエージェント、プロジェクト設定に対応
-- リファレンスドキュメントとテンプレート付き
+**repo-flow** (新規追加)
+- Git Flow ワークフローの完全サポート
+- フィーチャーブランチの作成・管理
+- プルリクエストの作成・レビュー・マージ
+- Emoji コンベンション対応
+- PR テンプレート付き
+
+#### リファレンステンプレート
 
 **repo-create**
-- GitHub リポジトリの作成・初期化
-- README.md、.gitignore、LICENSE の自動生成
-- initial commit の自動実行
+- README テンプレート（日本語/英語バイリンガル）
+- LICENSE オプションガイド
+- バッジコレクション
+- アニメーション付きヘッダー SVG テンプレート
+- 使用例ドキュメント
 
 **repo-maintain**
-- リリース作成・リリースノート自動生成
-- コミット履歴からの変更履歴生成
-- プルリクエスト・イシュー作成
-- リポジトリ状態サマリー表示
+- リリースノートテンプレート
+- リリースヘッダー SVG（アニメーション付き）
+- ワークフロー改善
 
-#### アセット
+**extension-generator**
+- プロジェクト設定パターンの追加
 
-- アニメーション付き SVG ヘッダー（グラデーション＆アニメーション効果）
-- バージョンアナウンス用リリースヘッダー画像
+#### インストーラー
 
-#### ドキュメント
+**script/install.sh** (全面刷新)
+- uv スタイルの簡易インストール（`curl | bash`）
+- Claude Code が未インストールの場合、自動で公式インストーラーを実行
+- `~/.local/bin` の PATH 設定を自動追加
+- 簡素化された引数（`--skip-claude-install` 追加）
+- `cc-st`, `cc-glm`, `ccd-st`, `ccd-glm` コマンド提供
 
-- スキル説明付き包括的な README
-- GLM-4.7 モデル情報
-- セットアップ＆使用方法ガイド
+### バグ修正
+
+- `script/install.sh`: `ccd-*` コマンドの `exec sudo` で引数が正しく渡らない問題を修正
+- PR テンプレート: タイポの修正
+- PR テンプレート: Co-Authored-By を削除（不要な重複回避）
+
+### 変更
+
+- `claude-code-extension-generator` → `extension-generator` にリネーム
+- `git-flow-workflow` → `repo-flow` にリネーム（名称統一）
+- `repo-maintain`: PR 機能を削除（`repo-flow` との重複回避）
+- `.gitignore`: 外部ツールファイルを追加
+
+### アップグレード方法
+
+```bash
+# Git タグから取得
+git fetch --tags
+git checkout v0.2.0
+
+# または最新の main ブランチから
+git pull origin main
+```
 
 ### インストール
 
 ```bash
+# インストーラーを使用（Claude Code も自動インストール）
+curl -fsSL https://raw.githubusercontent.com/Sunwood-ai-labs/zero-cc/main/script/install.sh | bash
+
+# または手動でクローン
 git clone https://github.com/Sunwood-ai-labs/zero-cc.git
 cd zero-cc
 ```
-
-Claude Code でプロジェクトを開くと、スキルが自動的に読み込まれます。
-
-### 要件
-
-- [GitHub CLI](https://cli.github.com/) (`gh`) がインストール済み
-- `gh auth login` で認証済み
-
-### 技術スタック
-
-本プロジェクトの開発には **GLM-4.7** (Zhipu AI) が使用されました。
 
 ---
 
@@ -67,56 +90,79 @@ Claude Code でプロジェクトを開くと、スキルが自動的に読み�
 
 ### Overview
 
-ZERO CC v0.1.0 is the initial release of the Claude Code custom skills collection. This release includes three powerful skills to enhance your Claude Code workflow.
+ZERO CC v0.2.0 is a workflow enhancement release that significantly improves the Git Flow workflow and developer experience. A new `repo-flow` skill has been added, and reference templates are now provided for all skills.
 
 ### What's New
 
 #### Skills
 
-**claude-code-extension-generator**
-- Automatically generate Claude Code extensions from natural language
-- Support for skills, sub-agents, and project configurations
-- Includes reference documentation and templates
+**repo-flow** (New)
+- Full Git Flow workflow support
+- Feature branch creation and management
+- Pull request creation, review, and merge
+- Emoji conventions support
+- Includes PR template
+
+#### Reference Templates
 
 **repo-create**
-- Create and initialize GitHub repositories
-- Automatic README.md, .gitignore, and LICENSE generation
-- Initial commit automation
+- README template (bilingual Japanese/English)
+- LICENSE options guide
+- Badge collection
+- Animated header SVG template
+- Usage examples documentation
 
 **repo-maintain**
-- Release creation with automatic release notes
-- Changelog generation from commit history
-- Pull request and issue creation
-- Repository status summary
+- Release notes template
+- Release header SVG (with animations)
+- Workflow improvements
 
-#### Assets
+**extension-generator**
+- Added project configuration patterns
 
-- Animated SVG header with gradient effects and animations
-- Release-specific header image for version announcements
+#### Installer
 
-#### Documentation
+**script/install.sh** (Complete refresh)
+- uv-style simple install (`curl | bash`)
+- Auto-installs Claude Code if missing via official installer
+- Auto-adds `~/.local/bin` to PATH
+- Simplified arguments (added `--skip-claude-install`)
+- Provides `cc-st`, `cc-glm`, `ccd-st`, `ccd-glm` commands
 
-- Comprehensive README with skill descriptions
-- GLM-4.7 model information
-- Setup and usage instructions
+### Bug Fixes
+
+- `script/install.sh`: Fixed `ccd-*` command `exec sudo` argument passing issue
+- PR template: Fixed typos
+- PR template: Removed Co-Authored-By (to avoid unnecessary duplication)
+
+### Changes
+
+- Renamed `claude-code-extension-generator` → `extension-generator`
+- Renamed `git-flow-workflow` → `repo-flow` (naming consistency)
+- `repo-maintain`: Removed PR functionality (to avoid duplication with `repo-flow`)
+- `.gitignore`: Added external tool files
+
+### Upgrade
+
+```bash
+# Fetch by git tag
+git fetch --tags
+git checkout v0.2.0
+
+# Or from latest main branch
+git pull origin main
+```
 
 ### Installation
 
 ```bash
+# Using installer (auto-installs Claude Code)
+curl -fsSL https://raw.githubusercontent.com/Sunwood-ai-labs/zero-cc/main/script/install.sh | bash
+
+# Or manually clone
 git clone https://github.com/Sunwood-ai-labs/zero-cc.git
 cd zero-cc
 ```
-
-Then open the project in Claude Code to automatically load the skills.
-
-### Requirements
-
-- [GitHub CLI](https://cli.github.com/) (`gh`) installed
-- `gh auth login` completed
-
-### Tech Stack
-
-This project was developed using **GLM-4.7** by Zhipu AI.
 
 ---
 
@@ -130,11 +176,22 @@ MIT License - 詳細は [LICENSE](LICENSE) を参照 / see [LICENSE](LICENSE) fo
 
 - [リポジトリ / Repository](https://github.com/Sunwood-ai-labs/zero-cc)
 - [イシュー / Issues](https://github.com/Sunwood-ai-labs/zero-cc/issues)
+- [v0.1.0 リリース / v0.1.0 Release](https://github.com/Sunwood-ai-labs/zero-cc/releases/tag/v0.1.0)
+
+---
+
+## 変更統計 / Change Statistics
+
+```
+25 files changed, 2728 insertions(+), 679 deletions(-)
+```
 
 ---
 
 <div align="center">
 
 [Claude Code](https://claude.ai/code) のために ❤️ を込めて / Made with ❤️ for [Claude Code](https://claude.ai/code)
+
+ Developed with **GLM-4.7** by Zhipu AI
 
 </div>
