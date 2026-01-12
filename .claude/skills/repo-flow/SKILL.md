@@ -69,33 +69,56 @@ git status
 git diff
 ```
 
+**重要: 差分は巻き戻しやすいように細かくコミットする**
+- ファイル単位、機能単位で小さく分けてコミット
+- 1コミットにつき1つの変更を原則とする
+
 **コミットメッセージ形式:**
 ```
-<type>: <subject>
+<emoji> <type>: <subject>
 
 [optional body]
 
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-**タイプ:**
-- `feat` - 新機能
-- `fix` - バグ修正
-- `docs` - ドキュメント
-- `style` - フォーマット
-- `refactor` - リファクタリング
-- `test` - テスト
-- `chore` - その他
+**タイプと対応する絵文字:**
+| タイプ | 絵文字 | 説明 |
+|:------|:------|:------|
+| `feat` | ✨ | 新機能 |
+| `fix` | 🐛 | バグ修正 |
+| `docs` | 📚 | ドキュメント |
+| `style` | 💄 | フォーマット |
+| `refactor` | ♻️ | リファクタリング |
+| `test` | 🧪 | テスト |
+| `chore` | 🔧 | その他 |
+| `perf` | ⚡ | パフォーマンス |
+| `ci` | 🤖 | CI/CD |
 
 **コミット例:**
 ```bash
-# 全ての変更をコミット
-git add .
-git commit -m "feat: add user authentication
+# 細かく分けてコミット
+git add path/to/auth.py
+git commit -m "✨ feat(auth): add JWT authentication module
 
 - Implement JWT-based authentication
-- Add login/logout endpoints
-- Include password hashing
+- Add token generation and validation
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+
+git add path/to/login.py
+git commit -m "✨ feat(auth): add login endpoint
+
+- Add /login POST endpoint
+- Include password hashing with bcrypt
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+
+git add path/to/logout.py
+git commit -m "✨ feat(auth): add logout endpoint
+
+- Add /logout POST endpoint
+- Invalidate session tokens
 
 Co-Authored-By: Claude <noreply@anthropic.com>"
 ```
@@ -108,43 +131,62 @@ git push -u origin feature/<name>
 
 ### Step 5: プルリクエスト作成
 
+**ビルド/テストの実行:**
+プロジェクトにビルドコマンドやテストコマンドが存在する場合は、PR作成前に実行する
+
+```bash
+# ビルド（存在する場合）
+npm run build     # Node.js
+mvn compile       # Maven
+gradle build      # Gradle
+cargo build       # Rust
+go build          # Go
+
+# テスト（存在する場合）
+npm test          # Node.js
+mvn test          # Maven
+gradle test       # Gradle
+cargo test        # Rust
+go test ./...     # Go
+
+# 結果を保存（エビデンスとしてPRに添付）
+npm run build > build.log 2>&1
+npm test > test.log 2>&1
+```
+
 **タイトル形式:**
 ```
-<type>: <subject>
+<emoji> <type>(<scope>): <subject>
 
 例:
-feat(repo-create): add comprehensive reference templates
-fix(auth): resolve JWT token expiration issue
+✨ feat(repo-create): add comprehensive reference templates
+🐛 fix(auth): resolve JWT token expiration issue
+📚 docs(readme): update installation instructions
 ```
 
 **PR 作成:**
 ```bash
 # develop に対してPRを作成
 gh pr create --base develop \
-  --title "feat(scope): description" \
+  --title "✨ feat(scope): description" \
   --body "PR body here"
 ```
 
 **PR ボディンテンプレート:**
-```markdown
-## Summary
 
-[1-2行で変更内容を説明]
+詳細なテンプレートは `references/PULL_REQUEST.md` を参照
 
-## Changes
-
-- 変更点1
-- 変更点2
-
-## Test plan
-
-- [x] テスト項目1
-- [x] テスト項目2
-
----
-
-Co-Authored-By: Claude <noreply@anthropic.com>
+```bash
+# テンプレートを表示
+cat .claude/skills/repo-flow/references/PULL_REQUEST.md
 ```
+
+**主なセクション:**
+- Summary
+- Changes
+- Test plan
+- Build & Test Results（ビルド結果、テスト結果、実行エビデンス）
+- Multifaceted Analysis（技術的観点、運用観点、ユーザー観点）
 
 ### Step 6: コードレビュー対応
 
@@ -161,7 +203,12 @@ gh api repos/:owner/:repo/pulls/:number/comments --jq '.[] | select(.user.login 
 ```bash
 # 修正をコミット（同じブランチにプッシュ）
 git add <files>
-git commit -m "fix: resolve review feedback"
+git commit -m "🐛 fix: resolve review feedback
+
+- Address comment about XXX
+- Fix issue YYY pointed out in review
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
 git push
 ```
 
@@ -273,8 +320,11 @@ git push -u origin develop
 
 ✅ **やるべきこと:**
 - develop から feature ブランチを作成
-- Conventional Commits 形式でコミット
+- Conventional Commits 形式 + 絵文字でコミット
+- **変更はファイル単位・機能単位で細かくコミット**（巻き戻しやすくするため）
 - PR ボディに詳細な説明を記載
+- **PR には多角的分析を含める**
+- **ビルド/テストを実行し、エビデンスをPRに記載**
 - PR は develop に対して作成
 - コードレビューを受けてからマージ
 - マージ済みブランチは削除
@@ -284,6 +334,7 @@ git push -u origin develop
 - リモートの main に直接プッシュ
 - マージせずにブランチを放置
 - `git push --force` を使用（緊急時のみ）
+- **大量の変更を1つのコミットにまとめる**
 
 ## 使用例
 
@@ -298,9 +349,10 @@ git push -u origin develop
 # コミット & プッシュ & PR
 /repo-flow PR出して
 ↓
-1. 変更をコミット
-2. プッシュ
-3. develop への PR を作成
+1. **ビルド/テストを実行**（プロジェクトに応じて）
+2. 変更を**ファイル単位・機能単位で細かくコミット**（絵文字付き）
+3. プッシュ
+4. develop への PR を作成（多角的分析、ビルド/テスト結果を記載）
 
 # マージ
 /repo-flow マージして
@@ -311,6 +363,35 @@ feature → develop にマージ
 /repo-flow ブランチ削除して
 ↓
 マージ済みブランチを削除
+```
+
+## コミット例（細かく分ける場合）
+
+```bash
+# 悪い例: 全部1つのコミット
+git add .
+git commit -m "✨ feat: add authentication system"
+
+# 良い例: 細かく分ける
+git add src/auth/jwt.py
+git commit -m "✨ feat(auth): add JWT module
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+
+git add src/auth/login.py
+git commit -m "✨ feat(auth): add login endpoint
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+
+git add src/auth/logout.py
+git commit -m "✨ feat(auth): add logout endpoint
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+
+git add tests/auth_test.py
+git commit -m "🧪 test(auth): add authentication tests
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
 ```
 
 ## 関連スキル
