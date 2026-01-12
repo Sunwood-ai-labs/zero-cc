@@ -58,6 +58,11 @@ Git タグと GitHub リリースを作成します。
 
 4. **リリースノート生成**
 
+   まず `references/RELEASE_NOTES.md` のフォーマットを参照:
+   ```
+   .claude/skills/repo-maintain/references/RELEASE_NOTES.md
+   ```
+
    コミットメッセージを解析して分類:
 
    | プレフィックス | カテゴリ |
@@ -71,30 +76,34 @@ Git タグと GitHub リリースを作成します。
    | `chore:` | その他 |
    | なし | 変更 |
 
-   **リリースノートフォーマット:**
-   ```markdown
-   # [Version] - YYYY-MM-DD
+   **ステップ:**
+   1. `RELEASE_NOTES.md` をプロジェクトルートに生成（テンプレートを参照）
+   2. 必要に応じてヘッダー画像を作成:
+      - `references/release-header.svg` があれば参照
+      - なければ `references/header.svg` をベースに作成
 
-   ## 新機能
-   - 機能1 (#123)
-   - 機能2 (#124)
+5. **リリース実行（gh コマンド）**
 
-   ## バグ修正
-   - バグ修正1 (#125)
+   生成した `RELEASE_NOTES.md` を使用して GitHub リリースを作成:
 
-   ## 変更
-   - リファクタ1
-
-   ## その他
-   - その他1
-   ```
-
-5. **リリース実行**
    ```bash
+   # マークダウンファイルを指定してリリース
+   gh release create v[version] \
+     --title "v[version] - YYYY-MM-DD" \
+     --notes-file RELEASE_NOTES.md \
+     --verify-tag
+
+   # タグが存在しない場合は先に作成
    git tag -a v[version] -m "v[version]"
    git push origin v[version]
-   gh release create v[version] --title "v[version]" --notes-file RELEASE_NOTES.md
+   gh release create v[version] \
+     --title "v[version] - YYYY-MM-DD" \
+     --notes-file RELEASE_NOTES.md
    ```
+
+   **ポイント:**
+   - `--notes-file` で生成済みのマークダウンを直接指定
+   - `--verify-tag` でタグの存在確認（オプション）
 
 6. **完了メッセージ**
    - リリースURL
