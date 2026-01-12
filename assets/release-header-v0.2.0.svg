@@ -1,28 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300">
   <defs>
-    <!-- Animated Text Gradient -->
+    <!-- v0.2.0 Workflow Themed Text Gradient -->
     <linearGradient id="text-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" style="stop-color:#00d4ff">
-        <animate attributeName="stop-color" values="#00d4ff;#00ff88;#00d4ff;#7b2cbf;#00d4ff" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="stop-color" values="#00d4ff;#00ffff;#00d4ff;#00bfff;#00d4ff" dur="5s" repeatCount="indefinite"/>
       </stop>
       <stop offset="50%" style="stop-color:#7b2cbf">
-        <animate attributeName="stop-color" values="#7b2cbf;#e040fb;#ff6b6b;#ff9800;#7b2cbf" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="stop-color" values="#7b2cbf;#9d4edd;#7b2cbf;#6a4c93;#7b2cbf" dur="5s" repeatCount="indefinite"/>
       </stop>
-      <stop offset="100%" style="stop-color:#ff6b6b">
-        <animate attributeName="stop-color" values="#ff6b6b;#ff9800;#00d4ff;#00ff88;#ff6b6b" dur="6s" repeatCount="indefinite"/>
+      <stop offset="100%" style="stop-color:#00ff88">
+        <animate attributeName="stop-color" values="#00ff88;#00d4ff;#00ff88;#00ffff;#00ff88" dur="5s" repeatCount="indefinite"/>
       </stop>
     </linearGradient>
 
-    <!-- Gradient Background -->
+    <!-- v0.2.0 Version Accent Gradient -->
+    <linearGradient id="version-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00ffff">
+        <animate attributeName="stop-color" values="#00ffff;#00d4ff;#00ffff;#00bfff;#00ffff" dur="3s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" style="stop-color:#9d4edd">
+        <animate attributeName="stop-color" values="#9d4edd;#7b2cbf;#9d4edd;#b967ff;#9d4edd" dur="3s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+
+    <!-- Gradient Background - v0.2.0 Blue/Purple Flow Theme -->
     <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0f0c29">
-        <animate attributeName="stop-color" values="#0f0c29;#1a1a2e;#0f0c29;#16213e;#0f0c29" dur="10s" repeatCount="indefinite"/>
+      <stop offset="0%" style="stop-color:#0a0a1a">
+        <animate attributeName="stop-color" values="#0a0a1a;#0d1033;#0a0a1a;#0f1452;#0a0a1a" dur="12s" repeatCount="indefinite"/>
       </stop>
-      <stop offset="50%" style="stop-color:#302b63">
-        <animate attributeName="stop-color" values="#302b63;#16213e;#24243e;#302b63;#24243e" dur="10s" repeatCount="indefinite"/>
+      <stop offset="50%" style="stop-color:#1a1a4a">
+        <animate attributeName="stop-color" values="#1a1a4a;#252560;#1a1a4a;#1e1e55;#1a1a4a" dur="12s" repeatCount="indefinite"/>
       </stop>
-      <stop offset="100%" style="stop-color:#24243e">
-        <animate attributeName="stop-color" values="#24243e;#1f1f3a;#302b63;#1a1a2e;#24243e" dur="10s" repeatCount="indefinite"/>
+      <stop offset="100%" style="stop-color:#0d1b3a">
+        <animate attributeName="stop-color" values="#0d1b3a;#0a1a2e;#0d1b3a;#122540;#0d1b3a" dur="12s" repeatCount="indefinite"/>
       </stop>
     </linearGradient>
 
@@ -99,20 +109,30 @@
   <rect width="1200" height="300" fill="url(#bg-gradient)"/>
   <rect width="1200" height="300" fill="url(#grid)"/>
 
-  <!-- Extra Decorative Circles (More Animation) -->
-  <circle cx="100" cy="150" r="80" fill="none" stroke="rgba(0,212,255,0.15)" stroke-width="2" class="circle-spin"/>
-  <circle cx="1100" cy="150" r="100" fill="none" stroke="rgba(123,44,191,0.15)" stroke-width="2" class="circle-spin" style="animation-direction: reverse; animation-duration: 30s;"/>
-  <circle cx="600" cy="150" r="200" fill="none" stroke="rgba(255,107,107,0.03)" stroke-width="1" class="circle-spin" style="animation-duration: 40s;"/>
-  <circle cx="600" cy="280" r="150" fill="none" stroke="rgba(255,107,107,0.05)" stroke-width="1">
+  <!-- Extra Decorative Circles - v0.2.0 Blue/Purple Theme -->
+  <circle cx="100" cy="150" r="80" fill="none" stroke="rgba(0,212,255,0.2)" stroke-width="2" class="circle-spin"/>
+  <circle cx="1100" cy="150" r="100" fill="none" stroke="rgba(157,78,221,0.2)" stroke-width="2" class="circle-spin" style="animation-direction: reverse; animation-duration: 30s;"/>
+  <circle cx="600" cy="150" r="200" fill="none" stroke="rgba(0,255,255,0.05)" stroke-width="1" class="circle-spin" style="animation-duration: 40s;"/>
+  <circle cx="600" cy="280" r="150" fill="none" stroke="rgba(123,44,191,0.08)" stroke-width="1">
     <animate attributeName="r" values="150;170;150" dur="4s" repeatCount="indefinite"/>
   </circle>
 
-  <!-- More Floating Particles -->
+  <!-- v0.2.0 Wave Effect - Symbolizing "Workflow Flow" -->
+  <g opacity="0.15">
+    <path d="M 0 250 Q 150 230 300 250 T 600 250 T 900 250 T 1200 250" fill="none" stroke="url(#text-gradient)" stroke-width="2">
+      <animate attributeName="d" values="M 0 250 Q 150 230 300 250 T 600 250 T 900 250 T 1200 250;M 0 250 Q 150 270 300 250 T 600 250 T 900 250 T 1200 250;M 0 250 Q 150 230 300 250 T 600 250 T 900 250 T 1200 250" dur="4s" repeatCount="indefinite"/>
+    </path>
+    <path d="M 0 265 Q 150 245 300 265 T 600 265 T 900 265 T 1200 265" fill="none" stroke="url(#text-gradient)" stroke-width="1.5">
+      <animate attributeName="d" values="M 0 265 Q 150 245 300 265 T 600 265 T 900 265 T 1200 265;M 0 265 Q 150 285 300 265 T 600 265 T 900 265 T 1200 265;M 0 265 Q 150 245 300 265 T 600 265 T 900 265 T 1200 265" dur="5s" repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- v0.2.0 Blue/Purple Themed Particles -->
   <circle cx="150" cy="200" r="2" fill="#00d4ff" opacity="0.7">
     <animate attributeName="cy" values="200;50;200" dur="10s" repeatCount="indefinite"/>
     <animate attributeName="opacity" values="0.7;0;0.7" dur="10s" repeatCount="indefinite"/>
   </circle>
-  <circle cx="1050" cy="100" r="2" fill="#ff6b6b" opacity="0.7">
+  <circle cx="1050" cy="100" r="2" fill="#9d4edd" opacity="0.7">
     <animate attributeName="cy" values="100;250;100" dur="12s" repeatCount="indefinite"/>
     <animate attributeName="opacity" values="0.7;0;0.7" dur="12s" repeatCount="indefinite"/>
   </circle>
@@ -120,39 +140,39 @@
     <animate attributeName="cy" values="80;220;80" dur="8s" repeatCount="indefinite"/>
     <animate attributeName="opacity" values="0.6;0;0.6" dur="8s" repeatCount="indefinite"/>
   </circle>
-  <circle cx="900" cy="250" r="1.5" fill="#00ff88" opacity="0.6">
+  <circle cx="900" cy="250" r="1.5" fill="#00ffff" opacity="0.6">
     <animate attributeName="cy" values="250;50;250" dur="9s" repeatCount="indefinite"/>
     <animate attributeName="opacity" values="0.6;0;0.6" dur="9s" repeatCount="indefinite"/>
   </circle>
-  <circle cx="500" cy="60" r="2" fill="#ff9800" opacity="0.5">
+  <circle cx="500" cy="60" r="2" fill="#00bfff" opacity="0.5">
     <animate attributeName="cy" values="60;240;60" dur="11s" repeatCount="indefinite"/>
     <animate attributeName="opacity" values="0.5;0;0.5" dur="11s" repeatCount="indefinite"/>
   </circle>
-  <circle cx="700" cy="270" r="2" fill="#e040fb" opacity="0.5">
+  <circle cx="700" cy="270" r="2" fill="#b967ff" opacity="0.5">
     <animate attributeName="cy" values="270;30;270" dur="13s" repeatCount="indefinite"/>
     <animate attributeName="opacity" values="0.5;0;0.5" dur="13s" repeatCount="indefinite"/>
   </circle>
 
-  <!-- Shooting Stars -->
+  <!-- v0.2.0 Themed Shooting Stars -->
   <g filter="url(#sparkle-glow)">
-    <circle cx="0" cy="0" r="2" fill="#00ff88">
+    <circle cx="0" cy="0" r="2" fill="#00ffff">
       <animateMotion dur="3s" repeatCount="indefinite" path="M 100 50 L 300 150"/>
       <animate attributeName="opacity" values="0;1;0" dur="3s" repeatCount="indefinite"/>
     </circle>
-    <circle cx="0" cy="0" r="1.5" fill="#ff6b6b">
+    <circle cx="0" cy="0" r="1.5" fill="#9d4edd">
       <animateMotion dur="4s" repeatCount="indefinite" begin="1s" path="M 1000 200 L 800 100"/>
       <animate attributeName="opacity" values="0;1;0" dur="4s" repeatCount="indefinite"/>
     </circle>
   </g>
 
-  <!-- Code Brackets Left -->
-  <g fill="none" stroke="rgba(0,212,255,0.4)" stroke-width="3" stroke-linecap="round" class="bracket-left">
+  <!-- Code Brackets Left - Blue Theme -->
+  <g fill="none" stroke="rgba(0,212,255,0.5)" stroke-width="3" stroke-linecap="round" class="bracket-left">
     <path d="M 200 120 Q 180 150 200 180"/>
     <path d="M 180 100 Q 150 150 180 200"/>
   </g>
 
-  <!-- Code Brackets Right -->
-  <g fill="none" stroke="rgba(255,107,107,0.4)" stroke-width="3" stroke-linecap="round" class="bracket-right">
+  <!-- Code Brackets Right - Purple Theme -->
+  <g fill="none" stroke="rgba(157,78,221,0.5)" stroke-width="3" stroke-linecap="round" class="bracket-right">
     <path d="M 1000 120 Q 1020 150 1000 180"/>
     <path d="M 1020 100 Q 1050 150 1020 200"/>
   </g>
@@ -174,7 +194,7 @@
   </g>
 
   <!-- Main Text: ZERO CC v0.2.0 -->
-  <text x="600" y="175" text-anchor="middle" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="80" font-weight="900" fill="url(#text-gradient)" filter="url(#glow)" letter-spacing="6" class="main-text">ZERO CC <tspan fill="rgba(255,255,255,0.7)" font-size="50">v0.2.0</tspan></text>
+  <text x="600" y="175" text-anchor="middle" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="80" font-weight="900" fill="url(#text-gradient)" filter="url(#glow)" letter-spacing="6" class="main-text">ZERO CC <tspan fill="url(#version-gradient)" font-size="50" filter="url(#glow)">v0.2.0</tspan></text>
 
   <!-- Release Text (with Wave Animation) -->
   <text x="600" y="215" text-anchor="middle" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="rgba(255,255,255,0.5)" letter-spacing="6" class="subtitle">
@@ -184,35 +204,35 @@
   <!-- Subtitle -->
   <text x="600" y="245" text-anchor="middle" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="rgba(255,255,255,0.4)" letter-spacing="3" class="subtitle">Claude Code Skills &amp; Tools Collection</text>
 
-  <!-- Confetti/Particles Explosion -->
+  <!-- v0.2.0 Blue/Purple Confetti/Particles Explosion -->
   <g>
     <circle cx="400" cy="150" r="1.5" fill="#00d4ff">
       <animate attributeName="cx" values="400;350;400" dur="2s" repeatCount="indefinite"/>
       <animate attributeName="cy" values="150;120;150" dur="2s" repeatCount="indefinite"/>
       <animate attributeName="opacity" values="1;0;1" dur="2s" repeatCount="indefinite"/>
     </circle>
-    <circle cx="800" cy="150" r="1.5" fill="#ff6b6b">
+    <circle cx="800" cy="150" r="1.5" fill="#9d4edd">
       <animate attributeName="cx" values="800;850;800" dur="2.5s" repeatCount="indefinite"/>
       <animate attributeName="cy" values="150;180;150" dur="2.5s" repeatCount="indefinite"/>
       <animate attributeName="opacity" values="1;0;1" dur="2.5s" repeatCount="indefinite"/>
     </circle>
-    <circle cx="550" cy="130" r="1" fill="#00ff88">
+    <circle cx="550" cy="130" r="1" fill="#00ffff">
       <animate attributeName="cx" values="550;530;550" dur="1.8s" repeatCount="indefinite"/>
       <animate attributeName="cy" values="130;100;130" dur="1.8s" repeatCount="indefinite"/>
       <animate attributeName="opacity" values="1;0;1" dur="1.8s" repeatCount="indefinite"/>
     </circle>
-    <circle cx="650" cy="130" r="1" fill="#e040fb">
+    <circle cx="650" cy="130" r="1" fill="#b967ff">
       <animate attributeName="cx" values="650;670;650" dur="2.2s" repeatCount="indefinite"/>
       <animate attributeName="cy" values="130;100;130" dur="2.2s" repeatCount="indefinite"/>
       <animate attributeName="opacity" values="1;0;1" dur="2.2s" repeatCount="indefinite"/>
     </circle>
   </g>
 
-  <!-- Decorative Dots -->
+  <!-- v0.2.0 Blue/Purple Decorative Dots -->
   <circle cx="300" cy="270" r="3" fill="#00d4ff" class="dot-blink"/>
   <circle cx="325" cy="270" r="2" fill="#7b2cbf" class="dot-blink" style="animation-delay: 0.2s"/>
-  <circle cx="345" cy="270" r="1.5" fill="#ff6b6b" class="dot-blink" style="animation-delay: 0.4s"/>
-  <circle cx="855" cy="270" r="1.5" fill="#ff6b6b" class="dot-blink" style="animation-delay: 0.6s"/>
-  <circle cx="875" cy="270" r="2" fill="#7b2cbf" class="dot-blink" style="animation-delay: 0.8s"/>
+  <circle cx="345" cy="270" r="1.5" fill="#00ffff" class="dot-blink" style="animation-delay: 0.4s"/>
+  <circle cx="855" cy="270" r="1.5" fill="#9d4edd" class="dot-blink" style="animation-delay: 0.6s"/>
+  <circle cx="875" cy="270" r="2" fill="#b967ff" class="dot-blink" style="animation-delay: 0.8s"/>
   <circle cx="900" cy="270" r="3" fill="#00d4ff" class="dot-blink" style="animation-delay: 1s"/>
 </svg>
