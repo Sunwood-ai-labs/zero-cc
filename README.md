@@ -176,6 +176,27 @@ zero-cc/
 
 ---
 
+## 🎮 事例 / Examples
+
+ZERO CC を活用して作成されたプロジェクト例:
+
+### [claude-glm-actions-lab](https://github.com/Sunwood-ai-labs/claude-glm-actions-lab)
+
+GitHub Actions で Claude Code と GLM API を統合する実験的リポジトリ。
+
+**使用した ZERO CC スキル:**
+- `/repo-create` - リポジトリの初期化
+- `/repo-maintain` - リリース管理
+- `/extension-generator` - カスタムスキルの生成
+
+**機能:**
+- GitHub Actions で Claude Code を実行
+- GLM API (Z.AI) との統合
+- Issue コメント & PR レビュー対応
+- Bot 自己トリガー防止機能
+
+---
+
 ## 🤖 使用モデル
 
 本プロジェクトの開発には **GLM-4.7** (Zhipu AI) が使用されています。
