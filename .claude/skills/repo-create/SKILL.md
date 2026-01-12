@@ -39,9 +39,24 @@ GitHubリポジトリを新規作成・初期化します。
    ```
 
 3. **初期ファイル生成**（--clone 指定時）
-   - README.md
-   - .gitignore（言語自動検出）
-   - LICENSE（選択プロンプト）
+
+   詳細は [references/](references/) を参照:
+   - `README-template.md` - README.md テンプレート
+   - `LICENSE-options.md` - ライセンス選択ガイド
+   - `badges.md` - バッジ一覧
+   - `EXAMPLES.md` - 使用例
+   - `header-svg-template.md` - ヘッダーSVGテンプレート（変数プレースホルダー付き）
+
+   **生成するファイル:**
+   - `README.md` - テンプレートをベースに作成
+   - `.gitignore` - 言語自動検出（`gh repo create` のデフォルト）
+   - `LICENSE` - 選択プロンプト（MIT/Apache-2.0/GPL-3.0等）→ See [LICENSE-options.md](references/LICENSE-options.md)
+   - `assets/header.svg` - ヘッダー画像（自動生成）→ See [header-svg-template.md](references/header-svg-template.md)
+
+   **ヘッダー画像生成手順:**
+   1. リポジトリの内容を分析して適切なカラーマップを選択（AI/ML、Web、バックエンド等）
+   2. プロジェクト名の長さに応じてフォントサイズを計算
+   3. `header-svg-template.md` のテンプレートの変数を置換して `assets/header.svg` に出力
 
 4. **initial commit**
    ```bash
@@ -55,6 +70,8 @@ GitHubリポジトリを新規作成・初期化します。
    - 次のステップ
 
 ## 使用例
+
+詳細な使用例は [references/EXAMPLES.md](references/EXAMPLES.md) を参照。
 
 ```bash
 /repo-create my-awesome-project
