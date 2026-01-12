@@ -223,7 +223,7 @@ _ccd_reexec_as_nonroot_if_root() {
     exit 2
   fi
 
-  exec sudo -u "$CC_NONROOT_USER" -H bash -lc 'source ~/.bashrc; '"$1"' "$@"' bash "$@"
+  exec sudo -u "$CC_NONROOT_USER" -H bash -lc 'source ~/.bashrc; "$@"' bash "$@"
 }
 
 # 1) 通常（Anthropic 側ログイン/サブスク運用想定）
