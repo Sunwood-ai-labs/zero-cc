@@ -3,7 +3,7 @@ name: repo-maintain
 description: |
   既存GitHubリポジトリのメンテナンス（リリース、変更履歴、Issue等）。ghコマンド使用。
   トリガー例: 「リリースノート」「リリース」「issue」「repo-maintain」
-  ※ PR 作成・マージは git-flow-workflow スキルを使用
+  ※ PR 作成・マージは repo-flow スキルを使用
 allowed-tools: Bash, Read, Write, Glob, Grep
 arguments: auto-detect
 user-invocable: true
@@ -44,7 +44,10 @@ Git タグと GitHub リリースを作成します。
    git fetch --tags
    git tag -l | tail -5
    git log --oneline -10
+   git status --short
    ```
+
+   **重要**: 保留中の変更がある場合は、先にコミットするか確認する
 
 2. **バージョン決定**
    - 引数指定 → 使用
@@ -54,6 +57,7 @@ Git タグと GitHub リリースを作成します。
    ```bash
    PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
    git log ${PREV_TAG}..HEAD --pretty=format:"%h %s" --reverse
+   git diff ${PREV_TAG}...HEAD --stat
    ```
 
 4. **リリースノート生成**
@@ -65,49 +69,107 @@ Git タグと GitHub リリースを作成します。
 
    コミットメッセージを解析して分類:
 
-   | プレフィックス | カテゴリ |
-   |:---------------|:----------|
-   | `feat:` | 新機能 |
-   | `fix:` | バグ修正 |
-   | `refactor:` | リファクタリング |
+   | プレフィックス/Emoji | カテゴリ |
+   |:---------------------|:----------|
+   | `feat:`, `✨` | 新機能 |
+   | `fix:`, `🐛` | バグ修正 |
+   | `refactor:`, `🔄` | リファクタリング |
    | `perf:` | パフォーマンス |
-   | `docs:` | ドキュメント |
+   | `docs:`, `📝` | ドキュメント |
    | `test:` | テスト |
    | `chore:` | その他 |
+   | `style:` | スタイル |
    | なし | 変更 |
 
-   **ステップ:**
-   1. `RELEASE_NOTES.md` をプロジェクトルートに生成（テンプレートを参照）
-   2. 必要に応じてヘッダー画像を作成:
-      - `references/release-header.svg` があれば参照
-      - なければ `references/header.svg` をベースに作成
+   **バイリンガルリリースノートの構成:**
+   ```markdown
+   <img src="https://raw.githubusercontent.com/[user]/[repo]/main/assets/release-header-v[X.Y.Z].svg" alt="v[X.Y.Z] Release"/>
 
-5. **リリース実行（gh コマンド）**
+   # v[X.Y.Z] - [タイトル] / [English Title]
+
+   **リリース日 / Release Date:** YYYY-MM-DD
+
+   ---
+
+   ## 日本語 / Japanese
+
+   ### 概要
+   [リリースの概要]
+
+   ### 新機能
+   - 機能1
+   - 機能2
+
+   ### バグ修正
+   - 修正1
+   - 修正2
+
+   ### 変更
+   - 変更1
+   - 変更2
+
+   ---
+
+   ## English
+
+   ### Overview
+   [Release overview]
+
+   ### What's New
+   - Feature 1
+   - Feature 2
+
+   ### Bug Fixes
+   - Fix 1
+   - Fix 2
+
+   ### Changes
+   - Change 1
+   - Change 2
+   ```
+
+5. **リリースヘッダー画像のカスタマイズ**
+
+   `references/release-header.svg` をベースに、バージョン固有のテーマを適用:
+
+   **カスタマイズ項目:**
+   - **カラーテーマ**: バージョンのテーマに合わせた色（例: v0.2.0 = 青系/フロー）
+   - **グラデーション**: テキスト、背景、バージョン番号のグラデーション
+   - **エフェクト**: テーマに応じたエフェクト（波形、粒子など）
+   - **アニメーション**: 色、動きの調整
+
+   **手順:**
+   1. `assets/release-header-v[X.Y.Z].svg` を作成
+   2. テンプレートのプレースホルダーを埋める
+   3. 色とエフェクトをカスタマイズ
+   4. プロジェクトルートの `RELEASE_NOTES.md` から参照
+
+6. **リリース実行（gh コマンド）**
 
    生成した `RELEASE_NOTES.md` を使用して GitHub リリースを作成:
 
    ```bash
-   # マークダウンファイルを指定してリリース
-   gh release create v[version] \
-     --title "v[version] - YYYY-MM-DD" \
-     --notes-file RELEASE_NOTES.md \
-     --verify-tag
+   # タグ作成
+   git tag -a v[version] -m "v[version] - [Release Title]"
 
-   # タグが存在しない場合は先に作成
-   git tag -a v[version] -m "v[version]"
+   # タグプッシュ
    git push origin v[version]
+
+   # リリース作成（マークダウンファイルを指定）
    gh release create v[version] \
-     --title "v[version] - YYYY-MM-DD" \
+     --title "v[version] - [Release Title] (YYYY-MM-DD)" \
      --notes-file RELEASE_NOTES.md
    ```
 
    **ポイント:**
    - `--notes-file` で生成済みのマークダウンを直接指定
-   - `--verify-tag` でタグの存在確認（オプション）
+   - ヘッダー画像は assets/ に配置済みであること
+   - リリース後、README が更新必要か確認
 
-6. **完了メッセージ**
-   - リリースURL
-   - 次のステップ
+7. **完了後の処理**
+   - リリースURLを表示
+   - README の更新が必要か確認
+   - 次の開発サイクルへの準備
 
 ---
 
@@ -118,9 +180,10 @@ Git タグと GitHub リリースを作成します。
 ```bash
 PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 git log ${PREV_TAG}..HEAD --pretty=format:"%h %s" --reverse
+git diff ${PREV_TAG}...HEAD --stat
 ```
 
-カテゴリ別に分類して表示
+カテゴリ別に分類して表示（Emoji コンベンション対応）
 
 ---
 
@@ -195,5 +258,6 @@ gh issue list --state open --limit 5 2>/dev/null
 
 | スキル | 用途 |
 |:------|:------|
-| **git-flow-workflow** | フィーチャーブランチ作成、PR作成、マージ |
+| **repo-flow** | フィーチャーブランチ作成、PR作成、マージ |
 | **repo-create** | 新規リポジトリ作成 |
+| **extension-generator** | Claude Code 拡張機能の自動生成 |
