@@ -172,7 +172,7 @@ gh pr create --base develop \
   --body "PR body here"
 ```
 
-**PR ボディンテンプレート:**
+**PR ボディテンプレート:**
 
 詳細なテンプレートは `references/PULL_REQUEST.md` を参照
 
