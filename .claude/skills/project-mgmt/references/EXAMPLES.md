@@ -159,44 +159,55 @@ gh project field-list 11 --owner Sunwood-ai-labs
 # 終了日    ProjectV2Field    PVTF_lAHOBnsxLs4BMiC9zg71LFU
 ```
 
-**3. プロジェクトのグローバル ID を取得**
+**3. プロジェクトのグローバル ID を取得（jq 使用）**
 ```bash
-gh project view 11 --owner Sunwood-ai-labs --format json | grep '"id"'
-# 出力: "id":"PVT_kwHOBnsxLs4BMiC9"
+PROJECT_ID=11
+PROJECT_GLOBAL_ID=$(gh project view $PROJECT_ID --owner Sunwood-ai-labs --format json | jq -r ".id")
+echo "$PROJECT_GLOBAL_ID"
+# 出力: PVT_kwHOBnsxLs4BMiC9
 ```
 
-**4. アイテム ID を取得**
+**4. アイテム ID を取得（jq 使用）**
 ```bash
-gh project item-list 11 --owner Sunwood-ai-labs --format json | grep -A 5 '"number":7'
-# 出力: ..."id":"PVTI_lAHOBnsxLs4BMiC9zgjpfng"...
+ITEM_ID=$(gh project item-list 11 --owner Sunwood-ai-labs --format json | jq -r ".[] | select(.content.number == 7) | .id")
+echo "$ITEM_ID"
+# 出力: PVTI_lAHOBnsxLs4BMiC9zgjpfng
 ```
 
-**5. 日付を設定**
+**5. 日付を設定（変数を使用）**
 ```bash
+# フィールドIDを取得
+START_DATE_FIELD_ID=$(gh project field-list 11 --owner Sunwood-ai-labs | grep "開始日" | awk '{print $3}')
+END_DATE_FIELD_ID=$(gh project field-list 11 --owner Sunwood-ai-labs | grep "終了日" | awk '{print $3}')
+
 # Issue #7: 2026-01-15 〜 2026-01-20
+ITEM_ID_7=$(gh project item-list 11 --owner Sunwood-ai-labs --format json | jq -r ".[] | select(.content.number == 7) | .id")
+
 gh project item-edit \
-  --project-id PVT_kwHOBnsxLs4BMiC9 \
-  --id PVTI_lAHOBnsxLs4BMiC9zgjpfng \
-  --field-id PVTF_lAHOBnsxLs4BMiC9zg71LEA \
+  --project-id $PROJECT_GLOBAL_ID \
+  --id $ITEM_ID_7 \
+  --field-id $START_DATE_FIELD_ID \
   --date "2026-01-15"
 
 gh project item-edit \
-  --project-id PVT_kwHOBnsxLs4BMiC9 \
-  --id PVTI_lAHOBnsxLs4BMiC9zgjpfng \
-  --field-id PVTF_lAHOBnsxLs4BMiC9zg71LFU \
+  --project-id $PROJECT_GLOBAL_ID \
+  --id $ITEM_ID_7 \
+  --field-id $END_DATE_FIELD_ID \
   --date "2026-01-20"
 
 # Issue #8: 2026-01-18 〜 2026-01-25
+ITEM_ID_8=$(gh project item-list 11 --owner Sunwood-ai-labs --format json | jq -r ".[] | select(.content.number == 8) | .id")
+
 gh project item-edit \
-  --project-id PVT_kwHOBnsxLs4BMiC9 \
-  --id PVTI_lAHOBnsxLs4BMiC9zgjpfoM \
-  --field-id PVTF_lAHOBnsxLs4BMiC9zg71LEA \
+  --project-id $PROJECT_GLOBAL_ID \
+  --id $ITEM_ID_8 \
+  --field-id $START_DATE_FIELD_ID \
   --date "2026-01-18"
 
 gh project item-edit \
-  --project-id PVT_kwHOBnsxLs4BMiC9 \
-  --id PVTI_lAHOBnsxLs4BMiC9zgjpfoM \
-  --field-id PVTF_lAHOBnsxLs4BMiC9zg71LFU \
+  --project-id $PROJECT_GLOBAL_ID \
+  --id $ITEM_ID_8 \
+  --field-id $END_DATE_FIELD_ID \
   --date "2026-01-25"
 ```
 
@@ -209,11 +220,12 @@ Issue のステータスを「Todo」→「In Progress」→「Done」に変更�
 
 ### 手順
 
-**1. ステータスフィールドのオプションを取得**
+**1. ステータスフィールドのオプションを取得（GraphQL + jq）**
 ```bash
-gh api graphql -f query='
+# ステータス情報を取得
+STATUS_INFO=$(gh api graphql -f query="
 query {
-  node(id: "PVT_kwHOBnsxLs4BMiC9") {
+  node(id: \"$PROJECT_GLOBAL_ID\") {
     ... on ProjectV2 {
       fields(first: 20) {
         nodes {
@@ -229,64 +241,60 @@ query {
       }
     }
   }
-}'
+}")
+
+# jq で各IDを抽出
+STATUS_FIELD_ID=$(echo "$STATUS_INFO" | jq -r '.data.node.fields.nodes[] | select(.name == "Status") | .id')
+TODO_OPTION_ID=$(echo "$STATUS_INFO" | jq -r '.data.node.fields.nodes[] | select(.name == "Status") | .options[] | select(.name == "Todo") | .id')
+IN_PROGRESS_OPTION_ID=$(echo "$STATUS_INFO" | jq -r '.data.node.fields.nodes[] | select(.name == "Status") | .options[] | select(.name == "In Progress") | .id')
+DONE_OPTION_ID=$(echo "$STATUS_INFO" | jq -r '.data.node.fields.nodes[] | select(.name == "Status") | .options[] | select(.name == "Done") | .id')
+
+echo "Status Field ID: $STATUS_FIELD_ID"
+echo "Todo: $TODO_OPTION_ID"
+echo "In Progress: $IN_PROGRESS_OPTION_ID"
+echo "Done: $DONE_OPTION_ID"
 ```
 
 **出力:**
-```json
-{
-  "data": {
-    "node": {
-      "fields": {
-        "nodes": [
-          {
-            "id": "PVTSSF_lAHOBnsxLs4BMiC9zg7yZ1U",
-            "name": "Status",
-            "options": [
-              {"id": "f75ad846", "name": "Todo"},
-              {"id": "47fc9ee4", "name": "In Progress"},
-              {"id": "98236657", "name": "Done"}
-            ]
-          }
-        ]
-      }
-    }
-  }
-}
+```
+Status Field ID: PVTSSF_lAHOBnsxLs4BMiC9zg7yZ1U
+Todo: f75ad846
+In Progress: 47fc9ee4
+Done: 98236657
 ```
 
-**2. ステータスを In Progress に変更**
+**2. ステータスを In Progress に変更（変数を使用）**
 ```bash
 # Issue #7
 gh project item-edit \
-  --project-id PVT_kwHOBnsxLs4BMiC9 \
-  --id PVTI_lAHOBnsxLs4BMiC9zgjpfng \
-  --field-id PVTSSF_lAHOBnsxLs4BMiC9zg7yZ1U \
-  --single-select-option-id 47fc9ee4
+  --project-id $PROJECT_GLOBAL_ID \
+  --id $ITEM_ID_7 \
+  --field-id $STATUS_FIELD_ID \
+  --single-select-option-id $IN_PROGRESS_OPTION_ID
 
 # Issue #8
 gh project item-edit \
-  --project-id PVT_kwHOBnsxLs4BMiC9 \
-  --id PVTI_lAHOBnsxLs4BMiC9zgjpfoM \
-  --field-id PVTSSF_lAHOBnsxLs4BMiC9zg7yZ1U \
-  --single-select-option-id 47fc9ee4
+  --project-id $PROJECT_GLOBAL_ID \
+  --id $ITEM_ID_8 \
+  --field-id $STATUS_FIELD_ID \
+  --single-select-option-id $IN_PROGRESS_OPTION_ID
 ```
 
-**3. ステータスを Done に変更**
+**3. ステータスを Done に変更（変数を使用）**
 ```bash
 # Issue #7
 gh project item-edit \
-  --project-id PVT_kwHOBnsxLs4BMiC9 \
-  --id PVTI_lAHOBnsxLs4BMiC9zgjpfng \
-  --field-id PVTSSF_lAHOBnsxLs4BMiC9zg7yZ1U \
-  --single-select-option-id 98236657
+  --project-id $PROJECT_GLOBAL_ID \
+  --id $ITEM_ID_7 \
+  --field-id $STATUS_FIELD_ID \
+  --single-select-option-id $DONE_OPTION_ID
 
 # Issue #8
 gh project item-edit \
-  --project-id PVT_kwHOBnsxLs4BMiC9 \
-  --id PVTI_lAHOBnsxLs4BMiC9zgjpfoM \
-  --field-id PVTSSF_lAHOBnsxLs4BMiC9zg7yZ1U \
-  --single-select-option-id 98236657
+  --project-id $PROJECT_GLOBAL_ID \
+  --id $ITEM_ID_8 \
+  --field-id $STATUS_FIELD_ID \
+  --single-select-option-id $DONE_OPTION_ID
 ```
 
 ---

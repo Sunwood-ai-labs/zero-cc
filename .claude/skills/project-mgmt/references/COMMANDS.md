@@ -91,18 +91,26 @@ gh project list --owner Sunwood-ai-labs
 # 出力: 11    Agent-ZERO    open    PVT_kwHOBnsxLs4BMiC9
 ```
 
-### プロジェクト詳細
+### プロジェクト ID の動的取得
 
 ```bash
-gh project view PROJECT番号 --owner OWNER --format json
-```
+# プロジェクト名から ID を取得（jq 使用）
+PROJECT_ID=$(gh project list --owner $OWNER --format json | jq -r ".[] | select(.title == \"$PROJECT_NAME\") | .number")
 
-**重要:** グローバルID（`PVT_...`）を取得するために `--format json` を使用します。
+# プロジェクトグローバルID の取得
+PROJECT_GLOBAL_ID=$(gh project view $PROJECT_ID --owner $OWNER --format json | jq -r ".id")
+```
 
 **例:**
 ```bash
-gh project view 11 --owner Sunwood-ai-labs --format json
-# 出力: {"id":"PVT_kwHOBnsxLs4BMiC9","number":11,"title":"Agent-ZERO",...}
+OWNER="Sunwood-ai-labs"
+PROJECT_NAME="Agent-ZERO"
+
+PROJECT_ID=$(gh project list --owner $OWNER --format json | jq -r ".[] | select(.title == \"$PROJECT_NAME\") | .number")
+# 出力: 11
+
+PROJECT_GLOBAL_ID=$(gh project view $PROJECT_ID --owner $OWNER --format json | jq -r ".id")
+# 出力: PVT_kwHOBnsxLs4BMiC9
 ```
 
 ### プロジェクトに Item 追加
@@ -200,10 +208,15 @@ Title    ProjectV2Field    PVTF_lAHOBnsxLs4BMiC9zg7yZ1M
 ### 日付設定
 
 ```bash
+# フィールドIDを取得
+START_DATE_FIELD_ID=$(gh project field-list $PROJECT_ID --owner $OWNER | grep "開始日" | awk '{print $3}')
+END_DATE_FIELD_ID=$(gh project field-list $PROJECT_ID --owner $OWNER | grep "終了日" | awk '{print $3}')
+
+# 日付設定（変数を使用）
 gh project item-edit \
-  --project-id PROJECT_GLOBAL_ID \
-  --id ITEM_ID \
-  --field-id FIELD_ID \
+  --project-id $PROJECT_GLOBAL_ID \
+  --id $ITEM_ID \
+  --field-id $START_DATE_FIELD_ID \
   --date "YYYY-MM-DD"
 ```
 
@@ -215,10 +228,12 @@ gh project item-edit \
 **例:**
 ```bash
 # Issue #7 に開始日を設定
+ITEM_ID=$(gh project item-list $PROJECT_ID --owner $OWNER --format json | jq -r ".[] | select(.content.number == 7) | .id")
+
 gh project item-edit \
-  --project-id PVT_kwHOBnsxLs4BMiC9 \
-  --id PVTI_lAHOBnsxLs4BMiC9zgjpfng \
-  --field-id PVTF_lAHOBnsxLs4BMiC9zg71LEA \
+  --project-id $PROJECT_GLOBAL_ID \
+  --id $ITEM_ID \
+  --field-id $START_DATE_FIELD_ID \
   --date "2026-01-15"
 ```
 
@@ -226,12 +241,13 @@ gh project item-edit \
 
 ## ステータス変更
 
-### ステータスフィールド情報取得（GraphQL）
+### ステータスフィールド情報取得（GraphQL + jq）
 
 ```bash
-gh api graphql -f query='
+# ステータス情報を取得（GraphQL）
+STATUS_INFO=$(gh api graphql -f query="
 query {
-  node(id: "PROJECT_GLOBAL_ID") {
+  node(id: \"$PROJECT_GLOBAL_ID\") {
     ... on ProjectV2 {
       fields(first: 20) {
         nodes {
@@ -247,61 +263,63 @@ query {
       }
     }
   }
-}'
+}")
+
+# jq で各IDを抽出
+STATUS_FIELD_ID=$(echo "$STATUS_INFO" | jq -r '.data.node.fields.nodes[] | select(.name == "Status") | .id')
+TODO_OPTION_ID=$(echo "$STATUS_INFO" | jq -r '.data.node.fields.nodes[] | select(.name == "Status") | .options[] | select(.name == "Todo") | .id')
+IN_PROGRESS_OPTION_ID=$(echo "$STATUS_INFO" | jq -r '.data.node.fields.nodes[] | select(.name == "Status") | .options[] | select(.name == "In Progress") | .id')
+DONE_OPTION_ID=$(echo "$STATUS_INFO" | jq -r '.data.node.fields.nodes[] | select(.name == "Status") | .options[] | select(.name == "Done") | .id')
 ```
 
 **出力例:**
-```json
-{
-  "data": {
-    "node": {
-      "fields": {
-        "nodes": [
-          {
-            "id": "PVTSSF_lAHOBnsxLs4BMiC9zg7yZ1U",
-            "name": "Status",
-            "options": [
-              {"id": "f75ad846", "name": "Todo"},
-              {"id": "47fc9ee4", "name": "In Progress"},
-              {"id": "98236657", "name": "Done"}
-            ]
-          }
-        ]
-      }
-    }
-  }
-}
+```bash
+echo "Status Field ID: $STATUS_FIELD_ID"
+# 出力: Status Field ID: PVTSSF_lAHOBnsxLs4BMiC9zg7yZ1U
+
+echo "Todo: $TODO_OPTION_ID"
+# 出力: Todo: f75ad846
+
+echo "In Progress: $IN_PROGRESS_OPTION_ID"
+# 出力: In Progress: 47fc9ee4
+
+echo "Done: $DONE_OPTION_ID"
+# 出力: Done: 98236657
 ```
 
 ### ステータス変更
 
 ```bash
 gh project item-edit \
-  --project-id PROJECT_GLOBAL_ID \
-  --id ITEM_ID \
-  --field-id STATUS_FIELD_ID \
-  --single-select-option-id OPTION_ID
+  --project-id $PROJECT_GLOBAL_ID \
+  --id $ITEM_ID \
+  --field-id $STATUS_FIELD_ID \
+  --single-select-option-id $IN_PROGRESS_OPTION_ID
 ```
 
 **例:**
 ```bash
-# In Progress に変更
+# Issue #7 を In Progress に変更
+ITEM_ID=$(gh project item-list $PROJECT_ID --owner $OWNER --format json | jq -r ".[] | select(.content.number == 7) | .id")
+
 gh project item-edit \
-  --project-id PVT_kwHOBnsxLs4BMiC9 \
-  --id PVTI_lAHOBnsxLs4BMiC9zgjpfng \
-  --field-id PVTSSF_lAHOBnsxLs4BMiC9zg7yZ1U \
-  --single-select-option-id 47fc9ee4
+  --project-id $PROJECT_GLOBAL_ID \
+  --id $ITEM_ID \
+  --field-id $STATUS_FIELD_ID \
+  --single-select-option-id $IN_PROGRESS_OPTION_ID
 ```
 
 ---
 
-## ID の種類と取得方法
+## ID の種類と取得方法（jq 使用）
 
-| ID 種類 | 形式 | 取得コマンド |
-|---------|------|-------------|
-| プロジェクト ローカルID | 数字（例: `11`） | `gh project list --owner OWNER` |
-| プロジェクト グローバルID | `PVT_...` | `gh project view 番号 --format json` |
-| アイテムID | `PVTI_...` | `gh project item-list 番号 --format json` |
-| フィールドID | `PVTF_...` | `gh project field-list 番号 --owner OWNER` |
-| ステータスフィールドID | `PVTSSF_...` | GraphQL クエリ |
-| ステータスオプションID | 16進数（例: `47fc9ee4`） | GraphQL クエリ |
+| ID 種類 | 形式 | 取得コマンド（jq 使用） |
+|---------|------|------------------------|
+| プロジェクト ローカルID | 数字（例: `11`） | `gh project list --owner OWNER --format json \| jq -r ".[] \| select(.title == \"NAME\") \| .number"` |
+| プロジェクト グローバルID | `PVT_...` | `gh project view 番号 --format json \| jq -r ".id"` |
+| アイテムID | `PVTI_...` | `gh project item-list 番号 --format json \| jq -r ".[] \| select(.content.number == 7) \| .id"` |
+| フィールドID | `PVTF_...` | `gh project field-list 番号 --owner OWNER \| grep "名前" \| awk '{print $3}'` |
+| ステータスフィールドID | `PVTSSF_...` | GraphQL + `jq -r '.data.node.fields.nodes[] \| select(.name == "Status") \| .id'` |
+| ステータスオプションID | 16進数（例: `47fc9ee4`） | GraphQL + `jq -r '.data.node.fields.nodes[] \| select(.name == "Status") \| .options[] \| select(.name == "In Progress") \| .id'` |
+
+**重要:** JSON パースには `grep` や `awk` ではなく、必ず `jq` を使用してください。
