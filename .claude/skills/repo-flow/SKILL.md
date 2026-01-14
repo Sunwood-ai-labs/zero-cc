@@ -1,17 +1,20 @@
 ---
 name: repo-flow
 description: |
-  Git Flow ワークフローで開発からマージまでを実行。
+  Git Flow ワークフローで開発からdevelopへのマージまでを実行。
   「フィーチャーブランチ作って」「PR出して」「コードレビューして」「マージして」などのリクエスト時に使用。
   開発中の差分がある状態からブランチを作成します。
   develop → main のリリースフローもサポート。
+  ※ develop → main のマージは人間が実行します。
 allowed-tools: Bash, Glob, Grep, Read, Write
 user-invocable: true
 ---
 
 # Repo Flow
 
-Git Flow ワークフローでフィーチャーブランチの作成からマージ・クリーンアップまでを支援します。
+Git Flow ワークフローでフィーチャーブランチの作成からdevelopへのマージまでを支援します。
+
+**※ develop → main のマージは人間が実行します。このスキルではmainへマージしません。**
 
 **前提: 開発で差分がある状態から開始します**
 
@@ -216,7 +219,7 @@ git push
 
 **Git Flow の正しい順序:**
 ```
-feature → develop → main
+feature → develop → (人が確認して) → main
 ```
 
 ```bash
@@ -229,25 +232,7 @@ git merge feature/<name> --no-ff
 git push origin develop
 ```
 
-### Step 8: main へのリリースマージ
-
-**リリース時のみ実行:**
-
-```bash
-# main に切り替え
-git checkout main
-git pull
-
-# develop をマージ（--no-ff または --squash）
-git merge develop --no-ff
-git push origin main
-
-# タグ付け（任意、repo-maintain スキルでも可）
-git tag -a v1.0.0 -m "Release v1.0.0"
-git push origin v1.0.0
-```
-
-### Step 9: クリーンアップ
+### Step 8: クリーンアップ
 
 ```bash
 # ローカルブランチ削除
@@ -285,7 +270,7 @@ feature/*      ← フィーチャーブランチ（各機能開発）
    ↓
 6. develop にマージ
    ↓ (リリース時)
-7. main にマージ
+7. main にマージ (人間が実行)
    ↓
 8. ブランチ削除
 ```
@@ -326,13 +311,14 @@ git push -u origin develop
 - **PR には多角的分析を含める**
 - **ビルド/テストを実行し、エビデンスをPRに記載**
 - PR は develop に対して作成
-- コードレビューを受けてからマージ
+- コードレビューを受けてから develop にマージ
+- **develop → main のマージは人間が実行**
 - マージ済みブランチは削除
 
 ❌ **やるべきでないこと:**
 - feature ブランチを直接 main にマージ
 - リモートの main に直接プッシュ
-- マージせずにブランチを放置
+- **develop → main のマージを自動化しない（人間が確認の上実行）**
 - `git push --force` を使用（緊急時のみ）
 - **大量の変更を1つのコミットにまとめる**
 
@@ -354,10 +340,14 @@ git push -u origin develop
 3. プッシュ
 4. develop への PR を作成（多角的分析、ビルド/テスト結果を記載）
 
-# マージ
+# develop へマージ
 /repo-flow マージして
 ↓
 feature → develop にマージ
+
+# main へのマージは人間が実行
+# ↓
+# リリース時、人間が develop → main をマージ
 
 # クリーンアップ
 /repo-flow ブランチ削除して
