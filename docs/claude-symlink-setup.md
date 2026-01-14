@@ -1,7 +1,7 @@
 # Claude Code ユーザー全体設定を `zero-cc/.claude` を正として同期する（Symlink運用）
 
 ## 目的
-- `~/aslan_prj/zero-cc/.claude/` を **ユーザー全体設定の正本（Single Source of Truth）**にする
+- `zero-cc` リポジトリ内の `.claude/` を **ユーザー全体設定の正本（Single Source of Truth）**にする
 - `~/.claude/` 側は **シンボリックリンクで参照**させる
 - 正本は **Git で管理**して、複数端末でも同じ設定を再現できるようにする
 
