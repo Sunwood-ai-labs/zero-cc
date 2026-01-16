@@ -60,6 +60,8 @@ GitHubリポジトリを新規作成・初期化します。
 
 4. **initial commit**
    ```bash
+   git init
+   git branch -M main
    git add .
    git commit -m "Initial commit"
    git push -u origin main
