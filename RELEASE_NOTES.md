@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/Sunwood-ai-labs/zero-cc/main/assets/release-header-v0.3.0.svg" alt="v0.3.0 Release"/>
+<img src="https://raw.githubusercontent.com/Sunwood-ai-labs/zero-cc/main/assets/release-header-v0.3.0_a.svg" alt="v0.3.0 Release"/>
 
 # v0.3.0 - Agent ZERO 星来の覚醒 / Seira's Awakening
 

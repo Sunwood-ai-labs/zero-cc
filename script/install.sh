@@ -153,6 +153,8 @@ write_path_snippet() {
   content=$(
     cat <<'EOF'
 # Ensure ~/.local/bin is on PATH (Claude Code installer links here)
+# Only run in bash
+[ -n "$BASH_VERSION" ] || return 0
 case ":$PATH:" in
   *":$HOME/.local/bin:"*) ;;
   *) export PATH="$HOME/.local/bin:$PATH" ;;
@@ -194,6 +196,8 @@ EOF
   modes_content=$(
     cat <<'EOF'
 # ===== Claude Code: mode switching =====
+# Only run in bash
+[ -n "$BASH_VERSION" ] || return 0
 
 # --- Z.AI Anthropic-compatible endpoint ---
 # Z.AI docs:
