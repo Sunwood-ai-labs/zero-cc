@@ -1,8 +1,8 @@
 <img src="https://raw.githubusercontent.com/Sunwood-ai-labs/zero-cc/main/assets/release-header-v0.3.0.svg" alt="v0.3.0 Release"/>
 
-# v0.3.0 - Documentation & Examples Enhancement / ドキュメントと例の強化
+# v0.3.0 - Agent ZERO 星来の覚醒 / Seira's Awakening
 
-**リリース日 / Release Date:** 2026-01-14
+**リリース日 / Release Date:** 2025-01-17
 
 ---
 
@@ -10,28 +10,67 @@
 
 ### 概要
 
-v0.3.0 は、ドキュメントの改善と使用例の追加に焦点を当てたリリースです。`repo-maintain` スキルのワークフローを改善し、新しく `examples` セクションを追加して、ユーザーが各スキルの使用方法をより簡単に理解できるようにしました。
+このリリースでは、**無重 星来（むじゅう せいら）** という新しいアシスタントキャラクターが登場し、Claude Code の設定が含まれます。また、リポジトリ管理スキルの大幅な拡張と、SNS への自動リリース通知機能が追加されました。
+
+星来は重力から解放された存在として、あなたの開発作業をふわっと手伝います。
 
 ### 新機能
 
-- **Examples セクション**: README に各スキルの使用例を追加しました
-  - `claude-glm-actions-lab` の実践的な使用例を追加
+- **Agent ZERO CLAUDE.md 設定** - 無重 星来キャラクターの追加
+  - ふわふわした浮世離れした口調
+  - キャラクターとしての振る舞い定義
+  - セキュリティ義務の明文化
+
+- **repo-manager スキル** - タスク分割からプロジェクト管理を支援
+  - Issue 登録の自動化
+  - プロジェクト進捗の追跡
+  - 日付設定ワークフロー
+
+- **project-mgmt スキル** - GitHub プロジェクト管理の一括操作
+  - Issue 一括作成
+  - ラベル・プロジェクト設定
+  - マイルストーン・日付・ステータス変更
+
+- **repo-flow スキルの強化** - 自動ワークフロー実行
+  - Git Flow ワークフローの自動化
+  - develop → main のリリースフロー対応
+  - 自動マージ機能
+
+- **SNS 自動リリース通知** - Discord と X への自動投稿
+  - リリース時に Discord へ通知
+  - リリース時に X (Twitter) へ投稿
+
+- **VSCode 設定** - エディタ設定の追加
+  - プロジェクト固有の設定
+
+- **Claude シンボリックリンクセットアップガイド** - ドキュメント追加
+  - グローバル設定のシンボリックリンク手順
 
 ### バグ修正
 
-- なし
+- **project-mgmt**: jq を使用した動的 ID 解決に修正
+  - GitHub API レスポンスからの確実な ID 取得
+
+- **gemini-code-assist のレビューフィードバック**に対応
 
 ### 変更
 
-- **repo-maintain ワークフロー改善**: リリース手順をより明確にしました
-  - バイリンガルリリースノートのフォーマットを導入
-  - リリースヘッダー画像のカスタマイズ手順を追加
-- **.gitignore 更新**: `ZERO_CC_PRJ` サブディレクトリを除外
+- **repo-maintain スキル** - リリースワークフローの改善
+  - v0.2.0 のフィードバックに基づく改善
+  - バイリンガルリリースノート対応
+
+- **repo-create スキル** - Git init 手順の明示化
+  - リポジトリ作成プロセスの明確化
+
+- **ファイル権限** - 実行可能スクリプトの権限更新
+
+- **.gitignore** - ZERO_CC_PRJ サブディレクトリを追加
+  - ローカル設定ファイルの除外
 
 ### ドキュメント
 
-- README を更新し、examples セクションを追加
-- リリースノートのフォーマットを改善
+- リポジトリの examples セクションに claude-glm-actions-lab を追加
+- repo-flow ドキュメント: main マージは人間の責任であることを明記
 
 ---
 
@@ -39,69 +78,98 @@ v0.3.0 は、ドキュメントの改善と使用例の追加に焦点を当て�
 
 ### Overview
 
-v0.3.0 focuses on documentation improvements and examples. We've enhanced the `repo-maintain` skill workflow and added a new `examples` section to make it easier for users to understand how to use each skill.
+This release introduces **Seira Muju** as a new assistant character with Claude Code configuration, significant extensions to repository management skills, and automated release notification features to social media platforms.
+
+Seira, a gravity-liberated existence, will gently assist your development workflow.
 
 ### What's New
 
-- **Examples Section**: Added usage examples for each skill in the README
-  - Added practical examples for `claude-glm-actions-lab`
+- **Agent ZERO CLAUDE.md Configuration** - Added Seira Muju character
+  - Soft, otherworldly speaking style
+  - Character behavior definitions
+  - Explicit security mandates
+
+- **repo-manager Skill** - Task decomposition to project management support
+  - Automated Issue registration
+  - Project progress tracking
+  - Date setting workflow
+
+- **project-mgmt Skill** - Batch GitHub project management operations
+  - Batch Issue creation
+  - Label and project configuration
+  - Milestone, date, and status changes
+
+- **Enhanced repo-flow Skill** - Automatic workflow execution
+  - Git Flow workflow automation
+  - develop → main release flow support
+  - Automatic merge functionality
+
+- **SNS Auto Release Notifications** - Auto-post to Discord and X
+  - Discord notifications on release
+  - X (Twitter) posting on release
+
+- **VSCode Settings** - Added editor configuration
+  - Project-specific settings
+
+- **Claude Symlink Setup Guide** - Documentation added
+  - Global configuration symlink procedures
 
 ### Bug Fixes
 
-- None
+- **project-mgmt**: Fixed to use dynamic ID resolution with jq
+  - Reliable ID retrieval from GitHub API responses
+
+- Addressed **gemini-code-assist review feedback**
 
 ### Changes
 
-- **repo-maintain Workflow Enhancement**: Made the release process more clear
-  - Introduced bilingual release note format
-  - Added release header image customization steps
-- **.gitignore Update**: Excluded `ZERO_CC_PRJ` subdirectory
+- **repo-maintain Skill** - Improved release workflow
+  - Improvements based on v0.2.0 feedback
+  - Bilingual release notes support
+
+- **repo-create Skill** - Explicit git init steps
+  - Clarified repository creation process
+
+- **File Permissions** - Updated executable script permissions
+
+- **.gitignore** - Added ZERO_CC_PRJ subdirectory
+  - Excluded local configuration files
 
 ### Documentation
 
-- Updated README with examples section
-- Improved release note format
+- Added claude-glm-actions-lab to repository examples section
+- repo-flow documentation: clarified main merge is human responsibility
 
 ---
 
-## アップグレード方法 / Upgrade Guide
+## Upgrade Method
 
 ```bash
-# 方法 1: Git タグから / From Git Tag
+# Method 1: From Git tags
 git fetch --tags
 git checkout v0.3.0
 
-# 方法 2: 最新のメインから / From Latest Main
+# Method 2: Pull latest merge
 git pull origin main
 ```
 
 ---
 
-## ファイル変更 / File Changes
-
-```
- .claude/skills/repo-maintain/SKILL.md | 118 ++++++++++++++++++++++++++--------
- .gitignore                            |   1 +
- README.md                             |  21 ++++++
- 3 files changed, 113 insertions(+), 27 deletions(-)
-```
-
----
-
-## コントリビューター / Contributors
+## Contributors
 
 @Sunwood-ai-labs
 
 ---
 
-## 次のリリース予定 / Upcoming Release
+## Next Release Plans
 
-- 継続的なドキュメント改善
-- ユーザーフィードバックによる機能強化
+- Further skill enhancements based on community feedback
+- Additional automation workflows
+- Expanded documentation and examples
 
 ---
 
-## リンク / Links
+## Links
 
 - [GitHub Repository](https://github.com/Sunwood-ai-labs/zero-cc)
 - [Issues](https://github.com/Sunwood-ai-labs/zero-cc/issues)

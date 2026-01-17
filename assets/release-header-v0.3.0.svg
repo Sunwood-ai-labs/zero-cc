@@ -179,7 +179,7 @@
   </text>
 
   <!-- Subtitle -->
-  <text x="600" y="245" text-anchor="middle" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="rgba(255,255,255,0.4)" letter-spacing="3" class="subtitle">Documentation & Examples Enhancement</text>
+  <text x="600" y="245" text-anchor="middle" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="rgba(255,255,255,0.4)" letter-spacing="3" class="subtitle">Documentation &amp; Examples Enhancement</text>
 
   <!-- Floating Particles Explosion -->
   <g>
