@@ -59,18 +59,20 @@ backup_if_exists() {
 }
 
 write_file_strict() {
-  # $1=path $2=content $3=mode
-  local path="$1" content="$2" mode="$3"
+  # $1=target_path $2=file_content $3=mode
+  local target_path="$1"
+  local file_content="$2"
+  local mode="$3"
 
-  if [ -e "$path" ] && [ "$FORCE" -ne 1 ]; then
-    echo "[install] exists (skip; use --force to overwrite): $path" >&2
+  if [ -e "$target_path" ] && [ "$FORCE" -ne 1 ]; then
+    echo "[install] exists (skip; use --force to overwrite): $target_path" >&2
     return 0
   fi
 
-  backup_if_exists "$path"
+  backup_if_exists "$target_path"
   umask 077
-  printf '%s' "$content" > "$path"
-  chmod "$mode" "$path"
+  printf '%s' "$file_content" > "$target_path"
+  chmod "$mode" "$target_path"
 }
 
 ensure_bashrc_loader() {
@@ -88,6 +90,28 @@ ensure_bashrc_loader() {
 # ---- user snippets (modular) ----
 if [ -d "$HOME/.bashrc.d" ]; then
   for f in "$HOME/.bashrc.d/"*.sh; do
+    [ -e "$f" ] || continue
+    . "$f"
+  done
+fi
+BLOCK
+}
+
+ensure_zshrc_loader() {
+  local zshrc="$1"
+  local marker="user snippets (modular)"
+
+  [ -e "$zshrc" ] || touch "$zshrc"
+
+  if grep -q "$marker" "$zshrc"; then
+    return 0
+  fi
+
+  cat >> "$zshrc" <<'BLOCK'
+
+# ---- user snippets (modular) ----
+if [ -d "$HOME/.bashrc.d" ]; then
+  for f in "$HOME"/.bashrc.d/*.sh; do
     [ -e "$f" ] || continue
     . "$f"
   done
@@ -153,8 +177,8 @@ write_path_snippet() {
   content=$(
     cat <<'EOF'
 # Ensure ~/.local/bin is on PATH (Claude Code installer links here)
-# Only run in bash
-[ -n "$BASH_VERSION" ] || return 0
+# Only run in bash/zsh
+[ -n "$BASH_VERSION" ] || [ -n "$ZSH_VERSION" ] || return 0
 case ":$PATH:" in
   *":$HOME/.local/bin:"*) ;;
   *) export PATH="$HOME/.local/bin:$PATH" ;;
@@ -196,8 +220,8 @@ EOF
   modes_content=$(
     cat <<'EOF'
 # ===== Claude Code: mode switching =====
-# Only run in bash
-[ -n "$BASH_VERSION" ] || return 0
+# Only run in bash/zsh
+[ -n "$BASH_VERSION" ] || [ -n "$ZSH_VERSION" ] || return 0
 
 # --- Z.AI Anthropic-compatible endpoint ---
 # Z.AI docs:
@@ -347,18 +371,18 @@ EOF
 
 write_project_permissions_template() {
   local dir="$PWD/.claude"
-  local path="$dir/settings.local.json"
+  local target_path="$dir/settings.local.json"
 
   mkdir -p "$dir"
 
-  if [ -e "$path" ] && [ "$FORCE" -ne 1 ]; then
-    echo "[install] exists (skip; use --force to overwrite): $path" >&2
+  if [ -e "$target_path" ] && [ "$FORCE" -ne 1 ]; then
+    echo "[install] exists (skip; use --force to overwrite): $target_path" >&2
     return 0
   fi
 
-  backup_if_exists "$path"
+  backup_if_exists "$target_path"
   umask 077
-  cat > "$path" <<'JSON'
+  cat > "$target_path" <<'JSON'
 {
   "permissions": {
     "allow": [
@@ -403,8 +427,8 @@ write_project_permissions_template() {
   }
 }
 JSON
-  chmod 600 "$path"
-  echo "[install] wrote: $path"
+  chmod 600 "$target_path"
+  echo "[install] wrote: $target_path"
 }
 
 main() {
@@ -415,13 +439,14 @@ main() {
 
   if [ "$NO_BASHRC" -ne 1 ]; then
     ensure_bashrc_loader "$HOME/.bashrc"
+    ensure_zshrc_loader "$HOME/.zshrc"
   fi
 
   if [ "$WRITE_PERMS" -eq 1 ]; then
     write_project_permissions_template
   fi
 
-  echo "[install] done. Run: source ~/.bashrc"
+  echo "[install] done. Run: source ~/.bashrc  (or source ~/.zshrc)"
   echo "[install] commands: cc-st / cc-glm / ccd-st / ccd-glm"
   echo "[install] verify: claude doctor"
 }
