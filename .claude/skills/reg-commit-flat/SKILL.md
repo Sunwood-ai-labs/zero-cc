@@ -40,6 +40,7 @@ user-invocable: true
 ├─────────────────────────────────────────────────────────────┤
 │  2. project-mgmt モジュール                                    │
 │     - 単一Issueを作成（サブイシューなし）                       │
+│     - マイルストーンの取得・設定（あれば）                       │
 │     - プロジェクトへの追加                                     │
 │     - ステータス設定（Done）                                   │
 │     - 日付設定                                                 │
@@ -95,7 +96,38 @@ gh issue create \
   --label "enhancement"
 ```
 
-### 3. プロジェクトに追加
+### 3. マイルストーンの取得・設定（あれば）
+
+```bash
+# マイルストーン一覧を取得
+gh api /repos/OWNER/REPO/milestones
+
+# 出力例:
+# [
+#   {
+#     "number": 1,
+#     "title": "v0.1.0",
+#     "state": "open",
+#     "due_on": "2026-01-31T23:59:59Z"
+#   },
+#   {
+#     "number": 2,
+#     "title": "v0.2.0",
+#     "state": "open"
+#   }
+# ]
+
+# マイルストーンがある場合、Issueにアタッチ
+gh api --method PATCH /repos/OWNER/REPO/issues/ISSUE_NUMBER \
+  -f milestone=MILESTONE_NUMBER
+
+# 例: v0.1.0（milestone: 1）をアタッチ
+# gh api --method PATCH /repos/OWNER/REPO/issues/25 -f milestone=1
+```
+
+**注意**: マイルストーンがない場合は、この手順をスキップして進めてください。
+
+### 4. プロジェクトに追加
 
 ```bash
 gh project item-add PROJECT_NUMBER \
@@ -103,7 +135,7 @@ gh project item-add PROJECT_NUMBER \
   --owner OWNER
 ```
 
-### 4. ステータスと日付の設定
+### 5. ステータスと日付の設定
 
 ```bash
 # ステータスを Done に設定
@@ -127,7 +159,7 @@ gh project item-edit \
   --date "YYYY-MM-DD"
 ```
 
-### 5. コミット（ファイル単位・機能単位で分割）
+### 6. コミット（ファイル単位・機能単位で分割）
 
 **重要**: 変更はファイル単位・機能単位で細かくコミットし、巻き戻しやすくします。
 
@@ -173,7 +205,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 - **すべてのコミットにIssue番号を付ける**（例: `#25`）
 - **最後のコミットに `Closes #番号` を含める**（自動クローズ用）
 
-### 6. Gitフロー
+### 7. Gitフロー
 
 `repo-flow` モジュールを実行して、ブランチ作成・プッシュ・PR・マージを行います。
 
@@ -207,7 +239,14 @@ README、CONTRIBUTING、APIドキュメントを更新します。
 
 # 出力: https://github.com/owner/repo/issues/25
 
-# 3. プロジェクトに追加・ステータス設定
+# 3. マイルストーンの取得・設定（あれば）
+gh api /repos/OWNER/REPO/milestones
+
+# 出力例にマイルストーンがある場合、アタッチ
+# 例: v0.1.0（milestone: 1）をアタッチ
+gh api --method PATCH /repos/OWNER/REPO/issues/25 -f milestone=1
+
+# 4. プロジェクトに追加・ステータス設定
 gh project item-add 2 --owner OWNER \
   --url "https://github.com/owner/repo/issues/25"
 
@@ -218,7 +257,7 @@ gh project item-edit \
   --field-id PVTSSF_XXX \
   --single-select-option-id 98236657  # Done
 
-# 4. ファイル単位でコミット（複数）
+# 5. ファイル単位でコミット（複数）
 
 # README.md
 git add README.md
@@ -246,7 +285,7 @@ Closes #25
 
 Co-Authored-By: Claude <noreply@anthropic.com>"
 
-# 5. Gitフロー（repo-flow）
+# 6. Gitフロー（repo-flow）
 git checkout -b feature/docs-update-25
 git push -u origin feature/docs-update-25
 gh pr create --base develop \
