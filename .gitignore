@@ -29,3 +29,6 @@ ZERO_CC_PRJ/
 .claude/skills/**/config/
 .claude/skills/**/__pycache__/
 .claude/skills/**/*/__pycache__/
+
+# Node.js dependencies
+.claude/skills/**/node_modules/
