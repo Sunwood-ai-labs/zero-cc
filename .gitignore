@@ -22,3 +22,10 @@ ZERO_CC_PRJ/
 # ---------- Claude Code Internal ----------
 # Claude Codeの内部使用ファイル
 .claude/.SourceSageAssets/
+
+# ---------- Skills Environment ----------
+# スキルのvenv環境と設定ファイル
+.claude/skills/**/venv/
+.claude/skills/**/config/
+.claude/skills/**/__pycache__/
+.claude/skills/**/*/__pycache__/
