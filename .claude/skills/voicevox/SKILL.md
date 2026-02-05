@@ -1,14 +1,12 @@
 ---
 name: voicevox
 description: VOICEVOX Engineを使って日本語音声合成を行うスキル。テキストから自然な日本語音声を生成する。
-allowed-tools:
-  - Bash(python3 .claude/skills/voicevox/scripts/voicevox_client.py)
 triggers:
   - "音声を作"
   - "音声を生成"
   - "音声合成"
   - "voicevox"
-  - "ボイスボックス"
+  - "VOICEVOX"
   - "ナレーション"
   - "読み上げ"
 ---
