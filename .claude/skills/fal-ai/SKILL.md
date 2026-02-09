@@ -23,14 +23,33 @@ fal.ai APIを使ってマルチメディアコンテンツを作成するワー�
 
 ## 機能
 
-- **画像生成**: テキストプロンプトから画像を生成
+- **画像生成**: テキストプロンプトから画像を生成（Nano Banana Pro、Qwen Image 2512）
 - **画像編集**: 既存の画像を編集
 - **動画生成**: 画像から動画を生成
 - **音声付き動画生成**: 画像から音声付き動画を生成（LTX-2 19B Distilled）
 
+### 利用可能なモデル
+
+| モデル | タイプ | 特徴 |
+|--------|------|------|
+| **Nano Banana Pro** | T2I | Google Gemini 3 Pro Image、高度なテキスト描画、キャラクターの一貫性 |
+| **Qwen Image 2512** | T2I | 改善されたテキスト描画、自然なテクスチャ |
+| **Qwen Image Edit 2511** | I2I | 画像編集 |
+| **LTX-2** | I2V | 高速動画生成 |
+| **LTX-2 19B Distilled** | I2V | 音声付き動画生成 |
+
 ## 使用方法
 
-### 画像生成
+### 画像生成（Nano Banana Pro）
+
+```
+「マーケティングバナーを作って、テキスト『SUMMER SALE』入りで」
+「1960s aesthetic portrait（1960年代風ポートレート）の画像を」
+「プロフェッショナルなインフォグラフィックを生成して」
+「Multi-language text rendering, Japanese calligraphy style（多言語テキスト、日本の書道スタイル）の画像を」
+```
+
+### 画像生成（Qwen Image 2512）
 
 ```
 「夕日の山脈の画像を作って」
@@ -97,19 +116,24 @@ fal.ai APIを使ってマルチメディアコンテンツを作成するワー�
 ## スクリプト実行例
 
 ```bash
-# 画像生成
-node .claude/skills/fal-ai/scripts/generate-image.ts "A beautiful sunset" --size landscape_16_9
+# Nano Banana Pro による画像生成（高度なテキスト描画対応）
+node .claude/skills/fal-ai/scripts/t2i-nano-banana-pro.ts "Marketing banner with text" --size 16:9 --resolution 2k
+node .claude/skills/fal-ai/scripts/t2i-nano-banana-pro.ts "A beautiful sunset" --size 16:9
+node .claude/skills/fal-ai/scripts/t2i-nano-banana-pro.ts "A cat" --num 3 --format png
+
+# Qwen Image 2512 による画像生成
+node .claude/skills/fal-ai/scripts/t2i-qwen-image-2512.ts "A beautiful sunset" --size landscape_16_9
 
 # 画像編集
-node .claude/skills/fal-ai/scripts/edit-image.ts photo.jpg "Make the sky blue"
+node .claude/skills/fal-ai/scripts/i2i-qwen-image-edit-2511.ts photo.jpg "Make the sky blue"
 
 # 動画生成
-node .claude/skills/fal-ai/scripts/image-to-video.ts photo.jpg --duration 5
+node .claude/skills/fal-ai/scripts/i2v-ltx-2.ts photo.jpg --duration 5
 
 # 音声付き動画生成
-node .claude/skills/fal-ai/scripts/image-to-video-audio.ts photo.jpg
-node .claude/skills/fal-ai/scripts/image-to-video-audio.ts photo.jpg --prompt "Camera slowly zooms in" --camera dolly_in
-node .claude/skills/fal-ai/scripts/image-to-video-audio.ts photo.jpg --frames 169 --fps 24 --size landscape_16_9
+node .claude/skills/fal-ai/scripts/i2v-ltx-2-audio.ts photo.jpg
+node .claude/skills/fal-ai/scripts/i2v-ltx-2-audio.ts photo.jpg --prompt "Camera slowly zooms in" --camera dolly_in
+node .claude/skills/fal-ai/scripts/i2v-ltx-2-audio.ts photo.jpg --frames 169 --fps 24 --size landscape_16_9
 ```
 
 ## 出力先

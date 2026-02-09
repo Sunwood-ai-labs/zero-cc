@@ -2,7 +2,85 @@
 
 このドキュメントは、fal.aiスキルで使用する各モデルの仕様を説明します。
 
-## 1. Qwen Image 2512 (画像生成)
+## 1. Nano Banana Pro (画像生成)
+
+**モデルID**: `fal-ai/nano-banana-pro`
+
+**機能**: GoogleのGemini 3 Pro Imageアーキテクチャに基づく最先端の画像生成モデル。マルチモーダル理解により、単なるキーワードマッチングではなく、意味的な文脈を理解して画像を生成します。高度なテキスト描画とキャラクターの一貫性（最大5人まで）に対応しています。
+
+### 入力パラメータ
+
+| パラメータ | 型 | デフォルト | 説明 |
+|-----------|------|-----------|------|
+| `prompt` | string | 必須 | 画像生成のためのプロンプト |
+| `negative_prompt` | string | `""` | ネガティブプロンプト |
+| `image_size` | AspectRatio | `"1:1"` | 生成画像のアスペクト比 |
+| `resolution` | Resolution | `"1k"` | 解像度 (1k, 2k, 4k) |
+| `num_images` | integer | 1 | 生成する画像数 |
+| `output_format` | OutputFormat | `"png"` | 出力形式 (`jpeg`, `png`, `webp`) |
+| `enable_safety_checker` | boolean | true | セーフティチェッカーを有効化 |
+| `seed` | integer | ランダム | 乱数シード（再現性のため） |
+
+### image_size（アスペクト比）の値
+
+- `21:9`: ワイドスクリーン
+- `16:9`: 横長（動画・プレゼンテーション向け）
+- `3:2`: 写真スタイル
+- `4:3`: 標準横長
+- `5:4`: 写真スタイル
+- `1:1`: 正方形
+- `4:5`: 縦長写真
+- `3:4`: タブレットスタイル
+- `2:3`: 縦長写真
+- `9:16`: 縦長（モバイル向け）
+
+### resolution の値
+
+- `1k`: 標準解像度（$0.15/画像）
+- `2k`: 高解像度
+- `4k`: 超高解像度（$0.30/画像）
+
+### 特徴
+
+- **マルチモーダル理解**: Gemini 3 Pro Imageにより、複雑な自然言語指示を理解
+- **高度なテキスト描画**: 業界をリードするテキスト生成能力（多言語対応）
+- **キャラクターの一貫性**: 最大5人までのキャラクターを一貫して生成
+- **複数画像のブレンド**: 最大14枚の画像をブレンド可能
+
+### コスト
+
+- 標準（1K/2K）: $0.15/画像（約7枚/$1）
+- 4K出力: $0.30/画像
+
+### プロンプトの例
+
+```
+"1960s aesthetic portrait with film grain, warm color palette, and vintage composition"
+
+"Marketing banner for summer sale, with bold text '50% OFF', tropical beach background, vibrant colors"
+
+"Professional infographic showing quarterly growth data, clean charts, corporate blue color scheme"
+
+"A serene Japanese garden at sunset, cherry blossoms, traditional tea house, photorealistic, golden hour lighting"
+```
+
+### 使用例
+
+```javascript
+const result = await fal.subscribe("fal-ai/nano-banana-pro", {
+  input: {
+    prompt: "A beautiful sunset over mountains",
+    image_size: "16:9",
+    resolution: "2k",
+    num_images: 1,
+    output_format: "png"
+  }
+});
+```
+
+---
+
+## 2. Qwen Image 2512 (画像生成)
 
 **モデルID**: `fal-ai/qwen-image-2512/lora`
 
@@ -217,7 +295,21 @@
 
 ## 使用例
 
-### 画像生成
+### Nano Banana Pro による画像生成
+
+```javascript
+const result = await fal.subscribe("fal-ai/nano-banana-pro", {
+  input: {
+    prompt: "Marketing banner with bold text, professional design",
+    image_size: "16:9",
+    resolution: "2k",
+    num_images: 1,
+    output_format: "png"
+  }
+});
+```
+
+### Qwen Image 2512 による画像生成
 
 ```javascript
 const result = await fal.subscribe("fal-ai/qwen-image-2512/lora", {

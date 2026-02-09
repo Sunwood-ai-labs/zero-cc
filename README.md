@@ -12,6 +12,8 @@
 [![GLM-4.7](https://img.shields.io/badge/Powered%20by-GLM--4.7-blue?style=flat-square)](https://open.bigmodel.cn/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
+**日本語** | [English](README_EN.md)
+
 Claude Code を強化する、実用的なカスタムスキルコレクション。
 
 </div>
@@ -32,6 +34,8 @@ Claude Code を強化する、実用的なカスタムスキルコレクショ�
 | **repo-create** | GitHub リポジトリを新規作成・初期化 |
 | **repo-flow** | Git Flow ワークフロー（ブランチ/PR/マージ） |
 | **repo-maintain** | 既存リポジトリのメンテナンス（リリース/変更履歴/状態確認） |
+| **remotion** | Remotion 動画制作ベストプラクティス（React ベースの動画生成） |
+| **voicevox** | VOICEVOX Engine を使った日本語音声合成 |
 
 </div>
 
@@ -110,6 +114,40 @@ Git Flow ワークフローで開発からマージまでを実行します。
 
 ---
 
+### 🎬 remotion
+
+Remotion（React ベースの動画制作フレームワーク）のベストプラクティス集。
+
+**機能:**
+- 36のルールファイルで網羅的なドキュメント
+- アニメーション・トランジション・キャプション等の実装パターン
+- 3D コンテンツ（Three.js）対応
+- チャート・データ可視化パターン
+
+```bash
+/remotion 動画を作って
+/remotion キャプションを追加して
+```
+
+---
+
+### 🎙️ voicevox
+
+VOICEVOX Engine を使って日本語音声を合成します。
+
+**機能:**
+- テキストから自然な日本語音声（WAV形式）を生成
+- 複数のキャラクター（四国めたん、ずんだもん等）から選択可能
+- 速度・ピッチ・音量・イントネーションを調整可能
+
+```bash
+「この文章を読み上げて」
+「音声を生成して」
+「『こんにちは、世界』という音声を作って」
+```
+
+---
+
 ## 🚀 セットアップ
 
 ### 要件
@@ -161,9 +199,15 @@ zero-cc/
 │       ├── repo-flow/
 │       │   ├── SKILL.md
 │       │   └── references/
-│       └── repo-maintain/
+│       ├── repo-maintain/
+│       │   ├── SKILL.md
+│       │   └── references/
+│       ├── remotion/
+│       │   ├── SKILL.md
+│       │   └── rules/
+│       └── voicevox/
 │           ├── SKILL.md
-│           └── references/
+│           └── scripts/
 ├── assets/
 │   ├── header.svg
 │   └── release-header-v0.2.0.svg

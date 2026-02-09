@@ -12,5 +12,11 @@
   },
   "enabledPlugins": {
     "rust-analyzer-lsp@claude-plugins-official": true
+  },
+  "language": "日本語",
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_CODE_MAX_RETRIES": "30",
+    "teammateMode": "tmux"
   }
 }

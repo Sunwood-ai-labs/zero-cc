@@ -1,24 +1,25 @@
 #!/usr/bin/env tsx
 /**
- * t2i-qwen-image-2512.ts
+ * t2i-nano-banana-pro.ts
  *
- * MODEL: fal-ai/qwen-image-2512/lora
+ * MODEL: fal-ai/nano-banana-pro
  * TYPE: Text to Image (T2I)
  *
- * テキストプロンプトから画像を生成するスクリプト
+ * Google Nano Banana Pro (Gemini 3 Pro Image) による画像生成スクリプト
+ * 高度なテキスト描画とキャラクターの一貫性に対応
  * 生成された画像は outputs/images/generated/ に保存されます
  *
  * 使用方法:
- *   node t2i-qwen-image-2512.ts "A beautiful sunset" --size landscape_16_9
- *   node t2i-qwen-image-2512.ts "A cat" --num 3 --format png
+ *   node t2i-nano-banana-pro.ts "A beautiful sunset" --size landscape_16_9
+ *   node t2i-nano-banana-pro.ts "A cat" --num 3 --resolution 2k
+ *   node t2i-nano-banana-pro.ts "Marketing banner with text" --format png
  *
  * パラメータ制約:
- *   --size: square_hd | square | portrait_4_3 | portrait_16_9 | landscape_4_3 | landscape_16_9
- *   --steps: 1-100 (デフォルト: 28)
- *   --scale: 1-20 (デフォルト: 4)
- *   --num: 1-4 (デフォルト: 1)
+ *   --size: 21:9 | 16:9 | 3:2 | 4:3 | 5:4 | 1:1 | 4:5 | 3:4 | 2:3 | 9:16
+ *   --resolution: 1k | 2k | 4k (デフォルト: 1k)
+ *   --num: 1-10 (デフォルト: 1)
  *   --format: jpeg | png | webp
- *   --acceleration: none | regular | high
+ *   --negative: ネガティブプロンプト
  */
 
 import { fal } from "@fal-ai/client";
@@ -48,30 +49,30 @@ fal.config({
 });
 
 // 型定義
-type ImageSize =
-  | "square_hd"
-  | "square"
-  | "portrait_4_3"
-  | "portrait_16_9"
-  | "landscape_4_3"
-  | "landscape_16_9"
-  | { width: number; height: number };
+type AspectRatio =
+  | "21:9"
+  | "16:9"
+  | "3:2"
+  | "4:3"
+  | "5:4"
+  | "1:1"
+  | "4:5"
+  | "3:4"
+  | "2:3"
+  | "9:16";
 
+type Resolution = "1k" | "2k" | "4k";
 type OutputFormat = "jpeg" | "png" | "webp";
-type Acceleration = "none" | "regular" | "high";
 
 interface GenerateImageOptions {
   prompt: string;
   negativePrompt?: string;
-  imageSize?: ImageSize;
-  numInferenceSteps?: number;
-  guidanceScale?: number;
-  seed?: number;
+  aspectRatio?: AspectRatio;
+  resolution?: Resolution;
   numImages?: number;
-  enableSafetyChecker?: boolean;
   outputFormat?: OutputFormat;
-  acceleration?: Acceleration;
-  loras?: Array<{ path: string; scale: number }>;
+  enableSafetyChecker?: boolean;
+  seed?: number;
   outputDir?: string;
 }
 
@@ -80,23 +81,22 @@ function parseArgs(): GenerateImageOptions {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
-    console.error("使用方法: node generate-image.ts <prompt> [options]");
+    console.error("使用方法: node t2i-nano-banana-pro.ts <prompt> [options]");
     console.error("");
     console.error("オプション:");
-    console.error("  --size <size>              画像サイズ (square_hd, square, portrait_4_3, portrait_16_9, landscape_4_3, landscape_16_9)");
-    console.error("  --steps <number>           推論ステップ数 (デフォルト: 28)");
-    console.error("  --scale <number>           ガイダンススケール (デフォルト: 4)");
-    console.error("  --seed <number>            乱数シード");
+    console.error("  --size <ratio>             アスペクト比 (21:9, 16:9, 3:2, 4:3, 5:4, 1:1, 4:5, 3:4, 2:3, 9:16)");
+    console.error("  --resolution <res>         解像度 (1k, 2k, 4k) - デフォルト: 1k");
     console.error("  --num <number>             生成する画像数 (デフォルト: 1)");
     console.error("  --format <format>          出力形式 (jpeg, png, webp)");
-    console.error("  --acceleration <level>     加速レベル (none, regular, high)");
     console.error("  --negative <prompt>        ネガティブプロンプト");
+    console.error("  --seed <number>            乱数シード（再現性のため）");
     console.error("  --no-safety               セーフティチェッカーを無効化");
     console.error("  --output <dir>             出力ディレクトリ (デフォルト: outputs/images/generated)");
     console.error("");
     console.error("例:");
-    console.error('  node generate-image.ts "A beautiful sunset" --size landscape_16_9');
-    console.error('  node generate-image.ts "A cat" --num 3 --format png');
+    console.error('  node t2i-nano-banana-pro.ts "A beautiful sunset" --size 16:9');
+    console.error('  node t2i-nano-banana-pro.ts "Marketing banner with text" --resolution 2k');
+    console.error('  node t2i-nano-banana-pro.ts "A cat" --num 3 --format png');
     process.exit(1);
   }
 
@@ -108,16 +108,10 @@ function parseArgs(): GenerateImageOptions {
   while (i < args.length) {
     switch (args[i]) {
       case "--size":
-        options.imageSize = args[++i] as ImageSize;
+        options.aspectRatio = args[++i] as AspectRatio;
         break;
-      case "--steps":
-        options.numInferenceSteps = parseInt(args[++i]);
-        break;
-      case "--scale":
-        options.guidanceScale = parseFloat(args[++i]);
-        break;
-      case "--seed":
-        options.seed = parseInt(args[++i]);
+      case "--resolution":
+        options.resolution = args[++i] as Resolution;
         break;
       case "--num":
         options.numImages = parseInt(args[++i]);
@@ -125,11 +119,11 @@ function parseArgs(): GenerateImageOptions {
       case "--format":
         options.outputFormat = args[++i] as OutputFormat;
         break;
-      case "--acceleration":
-        options.acceleration = args[++i] as Acceleration;
-        break;
       case "--negative":
         options.negativePrompt = args[++i];
+        break;
+      case "--seed":
+        options.seed = parseInt(args[++i]);
         break;
       case "--no-safety":
         options.enableSafetyChecker = false;
@@ -159,7 +153,7 @@ function generateFilename(prompt: string, seed?: number, index: number = 0): str
     .split("_")
     .slice(0, 3)
     .join("_");
-  return `${promptSlug}_${timestamp}${seedSuffix}${indexSuffix}.png`;
+  return `nano_banana_${promptSlug}_${timestamp}${seedSuffix}${indexSuffix}.png`;
 }
 
 // 画像をダウンロードして保存
@@ -174,24 +168,27 @@ async function downloadImage(url: string, outputPath: string): Promise<void> {
 
 // 画像生成を実行
 async function generateImage(options: GenerateImageOptions) {
-  console.log("画像生成を開始します...");
+  console.log("Nano Banana Pro で画像生成を開始します...");
   console.log(`プロンプト: ${options.prompt}`);
 
   try {
-    const result = await fal.subscribe("fal-ai/qwen-image-2512/lora", {
-      input: {
-        prompt: options.prompt,
-        negative_prompt: options.negativePrompt || "",
-        image_size: options.imageSize || "landscape_4_3",
-        num_inference_steps: options.numInferenceSteps || 28,
-        guidance_scale: options.guidanceScale || 4,
-        seed: options.seed,
-        num_images: options.numImages || 1,
-        enable_safety_checker: options.enableSafetyChecker !== false,
-        output_format: options.outputFormat || "png",
-        acceleration: options.acceleration || "regular",
-        loras: options.loras || []
-      },
+    // パラメータを構築（オプションパラメータは条件付きで追加）
+    const inputParams: Record<string, any> = {
+      prompt: options.prompt
+    };
+
+    // オプションパラメータを追加（設定されている場合のみ）
+    if (options.negativePrompt) inputParams.negative_prompt = options.negativePrompt;
+    if (options.aspectRatio) inputParams.aspect_ratio = options.aspectRatio;
+    if (options.numImages) inputParams.num_images = options.numImages;
+    if (options.outputFormat) inputParams.output_format = options.outputFormat;
+    if (options.enableSafetyChecker !== undefined) inputParams.enable_safety_checker = options.enableSafetyChecker;
+    if (options.seed) inputParams.seed = options.seed;
+
+    console.log("リクエストパラメータ:", JSON.stringify(inputParams, null, 2));
+
+    const result = await fal.subscribe("fal-ai/nano-banana-pro", {
+      input: inputParams,
       logs: true,
       onQueueUpdate: (update) => {
         if (update.status === "IN_PROGRESS") {
@@ -202,7 +199,6 @@ async function generateImage(options: GenerateImageOptions) {
 
     console.log("\n✓ 画像生成が完了しました！");
     console.log(`リクエストID: ${result.requestId}`);
-    console.log(`シード: ${result.data.seed}`);
 
     // 出力ディレクトリを作成
     const outputDir = options.outputDir
@@ -212,9 +208,12 @@ async function generateImage(options: GenerateImageOptions) {
 
     console.log("\n生成された画像:");
 
-    for (let i = 0; i < result.data.images.length; i++) {
-      const image = result.data.images[i];
-      const filename = generateFilename(options.prompt, result.data.seed, i);
+    // 結果の構造に対応
+    const images = result.data?.images || result.images || [];
+
+    for (let i = 0; i < images.length; i++) {
+      const image = images[i];
+      const filename = generateFilename(options.prompt, options.seed, i);
       const outputPath = path.join(outputDir, filename);
 
       // 画像をダウンロード
@@ -222,14 +221,13 @@ async function generateImage(options: GenerateImageOptions) {
 
       console.log(`  [${i + 1}] ${filename}`);
       console.log(`      パス: ${outputPath}`);
-      console.log(`      サイズ: ${image.width}x${image.height}`);
-      console.log(`      形式: ${image.content_type}`);
+      if (image.width) {
+        console.log(`      サイズ: ${image.width}x${image.height}`);
+      }
+      if (image.content_type) {
+        console.log(`      形式: ${image.content_type}`);
+      }
       console.log(`      URL: ${image.url}`);
-    }
-
-    // NSFWチェック
-    if (result.data.has_nsfw_concepts && result.data.has_nsfw_concepts.some((c: boolean) => c)) {
-      console.warn("\n⚠️ 警告: いずれかの画像にNSFWコンテンツが検出されました");
     }
 
     return result;

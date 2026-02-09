@@ -22,6 +22,7 @@ ZERO_CC_PRJ/
 # ---------- Claude Code Internal ----------
 # Claude Codeの内部使用ファイル
 .claude/.SourceSageAssets/
+.claude/outputs/
 
 # ---------- Skills Environment ----------
 # スキルのvenv環境と設定ファイル
