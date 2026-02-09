@@ -62,6 +62,7 @@ interface EditImageOptions {
   seed?: number;
   enableSafetyChecker?: boolean;
   outputFormat?: OutputFormat;
+  outputDir?: string;
 }
 
 // コマンドライン引数の解析
@@ -79,6 +80,7 @@ function parseArgs(): EditImageOptions {
     console.error("  --format <format>          出力形式 (jpeg, png, webp)");
     console.error("  --negative <prompt>        ネガティブプロンプト");
     console.error("  --no-safety               セーフティチェッカーを無効化");
+    console.error("  --output <dir>             出力ディレクトリ (デフォルト: outputs/images/edited)");
     console.error("");
     console.error("例:");
     console.error('  node edit-image.ts photo.jpg "Make the sky blue"');
@@ -114,6 +116,9 @@ function parseArgs(): EditImageOptions {
         break;
       case "--no-safety":
         options.enableSafetyChecker = false;
+        break;
+      case "--output":
+        options.outputDir = args[++i];
         break;
       default:
         console.error(`不明なオプション: ${args[i]}`);
@@ -194,7 +199,9 @@ async function editImage(options: EditImageOptions) {
     console.log(`シード: ${result.data.seed}`);
 
     // 出力ディレクトリを作成
-    const outputDir = path.join(__dirname, "../../../outputs/images/edited");
+    const outputDir = options.outputDir
+      ? path.resolve(options.outputDir)
+      : path.join(__dirname, "../../../outputs/images/edited");
     fs.mkdirSync(outputDir, { recursive: true });
 
     console.log("\n編集された画像:");

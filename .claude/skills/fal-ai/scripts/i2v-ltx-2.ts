@@ -55,6 +55,7 @@ interface ImageToVideoOptions {
   duration?: number;
   fps?: number;
   motionScale?: number;
+  outputDir?: string;
 }
 
 // コマンドライン引数の解析
@@ -69,6 +70,7 @@ function parseArgs(): ImageToVideoOptions {
     console.error("  --duration <seconds>       動画の長さ（秒）(デフォルト: 4.0)");
     console.error("  --fps <number>             フレームレート (デフォルト: 24)");
     console.error("  --motion <scale>           動きのスケール (デフォルト: 1.0)");
+    console.error("  --output <dir>             出力ディレクトリ (デフォルト: outputs/videos/generated)");
     console.error("");
     console.error("例:");
     console.error('  node image-to-video.ts photo.jpg');
@@ -94,6 +96,9 @@ function parseArgs(): ImageToVideoOptions {
         break;
       case "--motion":
         options.motionScale = parseFloat(args[++i]);
+        break;
+      case "--output":
+        options.outputDir = args[++i];
         break;
       default:
         console.error(`不明なオプション: ${args[i]}`);
@@ -172,7 +177,9 @@ async function generateVideo(options: ImageToVideoOptions) {
     console.log(`リクエストID: ${result.requestId}`);
 
     // 出力ディレクトリを作成
-    const outputDir = path.join(__dirname, "../../../outputs/videos/generated");
+    const outputDir = options.outputDir
+      ? path.resolve(options.outputDir)
+      : path.join(__dirname, "../../../outputs/videos/generated");
     fs.mkdirSync(outputDir, { recursive: true });
 
     const filename = generateFilename(options.imageUrl);

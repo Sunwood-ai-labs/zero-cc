@@ -72,6 +72,7 @@ interface GenerateImageOptions {
   outputFormat?: OutputFormat;
   acceleration?: Acceleration;
   loras?: Array<{ path: string; scale: number }>;
+  outputDir?: string;
 }
 
 // コマンドライン引数の解析
@@ -91,6 +92,7 @@ function parseArgs(): GenerateImageOptions {
     console.error("  --acceleration <level>     加速レベル (none, regular, high)");
     console.error("  --negative <prompt>        ネガティブプロンプト");
     console.error("  --no-safety               セーフティチェッカーを無効化");
+    console.error("  --output <dir>             出力ディレクトリ (デフォルト: outputs/images/generated)");
     console.error("");
     console.error("例:");
     console.error('  node generate-image.ts "A beautiful sunset" --size landscape_16_9');
@@ -131,6 +133,9 @@ function parseArgs(): GenerateImageOptions {
         break;
       case "--no-safety":
         options.enableSafetyChecker = false;
+        break;
+      case "--output":
+        options.outputDir = args[++i];
         break;
       default:
         console.error(`不明なオプション: ${args[i]}`);
@@ -200,7 +205,9 @@ async function generateImage(options: GenerateImageOptions) {
     console.log(`シード: ${result.data.seed}`);
 
     // 出力ディレクトリを作成
-    const outputDir = path.join(__dirname, "../../../outputs/images/generated");
+    const outputDir = options.outputDir
+      ? path.resolve(options.outputDir)
+      : path.join(__dirname, "../../../outputs/images/generated");
     fs.mkdirSync(outputDir, { recursive: true });
 
     console.log("\n生成された画像:");

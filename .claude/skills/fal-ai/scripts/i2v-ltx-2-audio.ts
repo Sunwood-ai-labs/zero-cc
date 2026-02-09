@@ -78,6 +78,7 @@ interface ImageToVideoAudioOptions {
   videoOutputType?: VideoOutputType;
   videoQuality?: VideoQuality;
   videoWriteMode?: VideoWriteMode;
+  outputDir?: string;
 }
 
 // コマンドライン引数の解析
@@ -93,6 +94,7 @@ function parseArgs(): ImageToVideoAudioOptions {
     console.error("  --size <size>               動画サイズ (auto, square_hd, square, portrait_4_3, portrait_16_9, landscape_4_3, landscape_16_9)");
     console.error("  --no-audio                  音声を生成しない");
     console.error("  --no-multiscale             マルチスケール生成を無効化");
+    console.error("  --output <dir>              出力ディレクトリ (デフォルト: outputs/videos/generated)");
     console.error("  --fps <number>              フレームレート (デフォルト: 25)");
     console.error("  --acceleration <level>      加速レベル (none, regular, high, full)");
     console.error("  --camera <type>             カメラLoRA (dolly_in, dolly_out, dolly_left, dolly_right, jib_up, jib_down, static, none)");
@@ -139,6 +141,9 @@ function parseArgs(): ImageToVideoAudioOptions {
         break;
       case "--fps":
         options.fps = parseFloat(args[++i]);
+        break;
+      case "--output":
+        options.outputDir = args[++i];
         break;
       case "--acceleration":
         options.acceleration = args[++i] as Acceleration;
@@ -260,7 +265,9 @@ async function generateVideo(options: ImageToVideoAudioOptions) {
     console.log(`リクエストID: ${result.requestId}`);
 
     // 出力ディレクトリを作成
-    const outputDir = path.join(__dirname, "../../../outputs/videos/generated");
+    const outputDir = options.outputDir
+      ? path.resolve(options.outputDir)
+      : path.join(__dirname, "../../../outputs/videos/generated");
     fs.mkdirSync(outputDir, { recursive: true });
 
     const filename = generateFilename(options.imageUrl, options.generateAudio !== false);
