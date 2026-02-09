@@ -4,9 +4,11 @@
   "description": "fal.ai API scripts for the multimedia workspace",
   "type": "module",
   "scripts": {
-    "generate-image": "tsx generate-image.ts",
-    "edit-image": "tsx edit-image.ts",
-    "image-to-video": "tsx image-to-video.ts"
+    "t2i-nano-banana-pro": "tsx t2i-nano-banana-pro.ts",
+    "t2i-qwen-image-2512": "tsx t2i-qwen-image-2512.ts",
+    "i2i-qwen-image-edit-2511": "tsx i2i-qwen-image-edit-2511.ts",
+    "i2v-ltx-2": "tsx i2v-ltx-2.ts",
+    "i2v-ltx-2-audio": "tsx i2v-ltx-2-audio.ts"
   },
   "dependencies": {
     "@fal-ai/client": "^1.0.0",
